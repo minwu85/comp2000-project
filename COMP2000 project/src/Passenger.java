@@ -1,7 +1,7 @@
 public class Passenger {
 
 
-    Passenger(Station end, Station start ){
+    Passenger(Stops end, Stops start ){
 
     }
     
