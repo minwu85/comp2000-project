@@ -1,7 +1,7 @@
-public class Train {
+public class Vehicles {
     int capacity; 
     String name;
-    TrainLine route;
+    Routes route;
 
     //Train train1 = new Train(200, "Choo Choo", line1);
 
@@ -9,7 +9,7 @@ public class Train {
 
 
 
-    Train(int capacity, String name, TrainLine route){
+    Vehicles(int capacity, String name, Routes route){
         this.capacity = capacity;
         this.name = name;
         this.route = route;
