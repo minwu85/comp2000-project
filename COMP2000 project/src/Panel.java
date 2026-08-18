@@ -49,9 +49,9 @@ public class Panel extends Frame{
 
         //train line 2 (red)
         g.setColor(Color.red);
-        g.drawLine(width/2, height/2, width/2, height/2 - 300);
-        g.drawLine(width/2, height/2, width/2, height/2 - 200);
-        g.drawLine(width/2, height/2, width/2, height/2 - 100);
+        g.drawLine(width/2 + 2, height/2, width/2 + 2, height/2 - 300);
+        g.drawLine(width/2 + 2, height/2, width/2 + 2, height/2 - 200);
+        g.drawLine(width/2 + 2, height/2, width/2 + 2, height/2 - 100);
         g.drawLine(width/2, height/2 + 5, width/2 + 100, height/2 + 5);
         g.drawLine(width/2, height/2 + 5, width/2 + 200, height/2 + 5);
         g.drawLine(width/2, height/2 + 5, width/2 + 300, height/2 + 5);
@@ -60,10 +60,20 @@ public class Panel extends Frame{
 
         //train line 3 (green)
         g.setColor(Color.green);
-        g.drawLine(width/2, height/2 - 5, width/2 - 200, height/2 - 5);
+        g.drawLine(width/2 - 300, height/2 - 100, width/2 - 400, height/2 - 200);
+        g.drawLine(width/2 - 200, height/2, width/2 - 300, height/2 - 100);
         g.drawLine(width/2, height/2 - 5, width/2 - 200, height/2 - 5);
         g.drawLine(width/2, height/2 - 5, width/2 - 100, height/2 - 5);
 
+        //train line 4 (purple)
+        g.setColor(new Color(191, 0, 255));
+        g.drawLine(width/2 - 2, height/2, width/2 - 2, height/2 - 300);
+        g.drawLine(width/2 - 2, height/2, width/2 - 2, height/2 - 200);
+        g.drawLine(width/2 - 2, height/2, width/2 - 2, height/2 - 100);
+        g.drawLine(width/2, height/2 + 5, width/2 - 100, height/2 + 5);
+        g.drawLine(width/2, height/2 + 5, width/2 - 200, height/2 + 5);
+        g.drawLine(width/2 - 195, height/2 + 5, width/2 - 195, height/2 + 100);
+        g.drawLine(width/2 - 195, height/2 + 100, width/2 - 195, height/2 + 200);
 
 
         
