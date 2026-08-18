@@ -8,7 +8,7 @@ import javax.swing.*;
 public class Panel extends Frame{
 
     int width = 1280; //screen width
-    int height =720;  //screen height
+    int height = 720;  //screen height
 
     int majorStation = 40; //Big station 
     int normalStation= 20;//Normal station
@@ -33,7 +33,20 @@ public class Panel extends Frame{
         Graphics2D g2d=(Graphics2D) g;
         g2d.setStroke(new BasicStroke(3));
         //Draw Train Lines 
+        g.setColor(new Color(100, 150, 200));
+        g.drawLine(width/2 - 300, height/2, width/2 - 200, height/2 + 300);
+        g.drawLine(width/2 - 200, height/2, width/2 - 200, height/2 + 200);
+        g.drawLine(width/2 - 200, height/2, width/2 - 200, height/2 + 100);
+        g.drawLine(width/2, height/2, width/2 - 200, height/2);
+        g.drawLine(width/2, height/2, width/2 - 100, height/2);
         g.drawLine(width/2, height/2, width/2 + 100, height/2);
+        g.drawLine(width/2, height/2, width/2 + 200, height/2);
+        g.drawLine(width/2, height/2, width/2 + 300, height/2);
+        g.drawLine(width/2 + 300, height/2, width/2 + 400, height/2 - 100);
+        g.drawLine(width/2 + 400, height/2 - 100, width/2 + 400, height/2 - 200);
+        g.drawLine(width/2 + 400, height/2 - 100, width/2 + 400, height/2 - 300);
+
+
 
         
         g2d.setStroke(new BasicStroke(5)); //Stroke Thickness 
