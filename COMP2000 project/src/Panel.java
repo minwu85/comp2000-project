@@ -30,8 +30,12 @@ public class Panel extends Frame{
         Graphics2D g2d=(Graphics2D) g;
         g2d.setStroke(new BasicStroke(3));
         //Draw Train Lines 
+
+        //train line 1 (blue)
         g.setColor(new Color(100, 150, 200));
-        g.drawLine(width/2 - 300, height/2, width/2 - 200, height/2 + 300);
+        g.drawLine(width/2 - 300, height/2 + 300, width/2 - 500, height/2 + 300);
+        g.drawLine(width/2 - 300, height/2 + 300, width/2 - 400, height/2 + 300);
+        g.drawLine(width/2 - 200, height/2 + 200, width/2 - 300, height/2 + 300);
         g.drawLine(width/2 - 200, height/2, width/2 - 200, height/2 + 200);
         g.drawLine(width/2 - 200, height/2, width/2 - 200, height/2 + 100);
         g.drawLine(width/2, height/2, width/2 - 200, height/2);
@@ -43,10 +47,28 @@ public class Panel extends Frame{
         g.drawLine(width/2 + 400, height/2 - 100, width/2 + 400, height/2 - 200);
         g.drawLine(width/2 + 400, height/2 - 100, width/2 + 400, height/2 - 300);
 
+        //train line 2 (red)
+        g.setColor(Color.red);
+        g.drawLine(width/2, height/2, width/2, height/2 - 300);
+        g.drawLine(width/2, height/2, width/2, height/2 - 200);
+        g.drawLine(width/2, height/2, width/2, height/2 - 100);
+        g.drawLine(width/2, height/2 + 5, width/2 + 100, height/2 + 5);
+        g.drawLine(width/2, height/2 + 5, width/2 + 200, height/2 + 5);
+        g.drawLine(width/2, height/2 + 5, width/2 + 300, height/2 + 5);
+        g.drawLine(width/2 + 300, height/2, width/2 + 400, height/2 + 100);
+        g.drawLine(width/2 + 400, height/2 + 100, width/2 + 400, height/2 + 200);
+
+        //train line 3 (green)
+        g.setColor(Color.green);
+        g.drawLine(width/2, height/2 - 5, width/2 - 200, height/2 - 5);
+        g.drawLine(width/2, height/2 - 5, width/2 - 200, height/2 - 5);
+        g.drawLine(width/2, height/2 - 5, width/2 - 100, height/2 - 5);
+
 
 
         
         g2d.setStroke(new BasicStroke(5)); //Stroke Thickness 
+        g.setColor(Color.black);
 
         //Draw Stations 
         //Central Station
