@@ -1,9 +1,6 @@
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.awt.geom.Line2D;
-import javax.swing.*;
 
 public class Panel extends Frame{
 
@@ -40,12 +37,15 @@ public class Panel extends Frame{
 
         //Draw Stations 
         //Central Station
+        g.drawString("Central", width/2 -majorStation/2 - 10, height/2 -majorStation/2 - 10);
         g.setColor(Color.gray);
         g.fillOval(width/2 -majorStation/2, height/2 -majorStation/2, majorStation, majorStation);  
         g.setColor(Color.black);
         g.drawOval(width/2 -majorStation/2, height/2 -majorStation/2, majorStation, majorStation);
         //line 1
         //station 1
+        //provide a name for the station east1
+        g.drawString("East1", width/2 -normalStation/2 + 100 - 10, height/2 -normalStation/2 - 10);
         g.setColor(Color.gray);
         g.fillOval(width/2 -normalStation/2 + 100, height/2 -normalStation/2, normalStation, normalStation);  
         g.setColor(Color.black);
