@@ -25,11 +25,11 @@ public class Passenger {
         this.curStop = start;
     }
         
-    public boolean hasReachedDestination() {
+    public boolean checkStop() {
         return curStop == end;
     }
 
-    public Stops getCurrentStop() {
+    public Stops getCurStop() {
         return curStop;
     }
 
