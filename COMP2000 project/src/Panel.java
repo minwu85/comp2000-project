@@ -82,7 +82,7 @@ public class Panel extends Frame{
 
         //Draw Stations 
         //Central Station
-        g.drawString("Central", width/2 -majorStation/2 - 10, height/2 -majorStation/2 - 10);
+        g.drawString("Central", width/2 -majorStation/2, height/2 -majorStation/2 + 60);
         g.setColor(Color.gray);
         g.fillOval(width/2 -majorStation/2, height/2 -majorStation/2, majorStation, majorStation);  
         g.setColor(Color.black);
@@ -101,6 +101,7 @@ public class Panel extends Frame{
         g.setColor(Color.black);
         g.drawOval(width/2 -normalStation/2 + 200, height/2 -normalStation/2, normalStation, normalStation);
         //station 3
+        g.drawString("Percy Port", width/2 -normalStation/2 + 335, height/2 -normalStation/2 + 15);
         g.setColor(Color.gray);
         g.fillOval(width/2 -normalStation/2 + 300, height/2 -normalStation/2, normalStation, normalStation);  
         g.setColor(Color.black);
@@ -171,11 +172,13 @@ public class Panel extends Frame{
         g.drawOval(width/2 -majorStation/2 , height/2 -majorStation/2 - 300, majorStation, majorStation); 
         
         //Station 4.1
+        g.drawString("Tiger Bay", width/2 -normalStation/2 - 200 + 30, height/2 -normalStation/2 + 100 + 15);
         g.setColor(Color.gray);
         g.fillOval(width/2 -normalStation/2 -200, height/2 -normalStation/2 +100, normalStation, normalStation);  
         g.setColor(Color.black);
         g.drawOval(width/2 -normalStation/2 -200, height/2 -normalStation/2 +100, normalStation, normalStation); 
         //Station 4.2
+        g.drawString("Troll-upon-Bridge", width/2 -majorStation/2 - 200 + 50, height/2 -majorStation/2 + 200 + 25);
         g.setColor(Color.gray);
         g.fillOval(width/2 -majorStation/2 -200, height/2 -majorStation/2 +200, majorStation, majorStation);  
         g.setColor(Color.black);
