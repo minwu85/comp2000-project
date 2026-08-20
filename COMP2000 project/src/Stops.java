@@ -3,6 +3,7 @@ public class Stops {
     int y;
     String name;
     int capacity;
+    int totalComuters =0;
 
     Stops(int x, int y, String name, int capacity){
         this.x = x;
@@ -10,4 +11,14 @@ public class Stops {
         this.name = name;
         this.capacity = capacity;
     }
+
+    public int checkCapacity(){
+        int boardingTime =0;
+        if(totalComuters >=  capacity/3){
+            
+        }
+        return boardingTime;
+    }
+
+
 }
