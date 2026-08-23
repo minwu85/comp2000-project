@@ -1,15 +1,17 @@
+import java.awt.Color;
+import java.awt.Graphics;
 import java.util.ArrayList;
 
 public class Vehicles {
     int capacity; 
     String name;
     Routes route;
-    ArrayList<Passenger> onBoard;
+    ArrayList<Passenger> onBoard = new ArrayList<>();
 
+    int stationIndex = 0; // position along route.stations
+    int width = 30;
+    int height = 16;
 
-    //Train train1 = new Train(200, "Choo Choo", line1);
-
-    //train1.setBounds(width/2 -normalStation/2 + 100, height/2 -normalStation/2, normalStation, normalStation);
     public Vehicles(){
         
     }
@@ -20,8 +22,8 @@ public class Vehicles {
         this.route = route;
     }
 
-    public void getCurStop(){
-        
+    public Stops getCurStop(){
+        return route.stations.get(stationIndex);
     }
 
     public void addPassangers(){
@@ -38,13 +40,34 @@ public class Vehicles {
        // 
     }
 
+    // Steps forward one stop, looping back to the start after the last stop.
     public void moveVehicle(){
-        // get arrayList of routes called route and direct it to the next station
+        int lastIndex = route.stations.size() - 1;
+        if(stationIndex < lastIndex){
+            stationIndex = stationIndex + 1;
+        } else if(stationIndex == lastIndex){
+            stationIndex = 0;
+        }
     }
 
-    public void displayVehicle(Vehicles type, int x, int y){
-        //
-        
+    // White rectangle, black outline, sitting on the route at getCurStop().
+    public void displayVehicle(Graphics g){
+        Stops curStop = getCurStop();
+        int x = curStop.x - width / 2;
+        int y = curStop.y - height / 2;
+
+        g.setColor(Color.white);
+        g.fillRect(x, y, width, height);
+        g.setColor(Color.black);
+        g.drawRect(x, y, width, height);
+
+        if(onBoard.size() > 0){
+            int passengerSize = 8;
+            int passengerX = x + (width - passengerSize) / 2;
+            int passengerY = y + (height - passengerSize) / 2;
+            g.setColor(Color.orange);
+            g.fillOval(passengerX, passengerY, passengerSize, passengerSize);
+        }
     }
 
     public void reverseRoute(){
@@ -56,4 +79,3 @@ public class Vehicles {
 
 
 }
-

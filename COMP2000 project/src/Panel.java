@@ -15,15 +15,14 @@ public class Panel extends Frame{
     int majorStation = 40; //Big station 
     int normalStation= 20;//Normal station
 
-    // Train + passenger example, driven by a clock started with space.
-    Routes route = Routes.line1();
-    int stationIndex = 0;
-
-    int trainWidth = 30;
-    int trainHeight = 16;
+    // Train example, driven by a clock started with space.
+    Train train1 = new Train(50, "Choo Choo", Routes.line1());
 
     int clockTicks = 0; // 1 real second = 5 ticks
     Timer clock;
+
+    // Waits at East1, rides to Percy Port, then disembarks there.
+    Passenger pass1 = new Passenger("pass1", Stops.East1, Stops.PercyPort);
 
     Image dbImage;
     Graphics dbGraphics;
@@ -49,7 +48,8 @@ public class Panel extends Frame{
             public void actionPerformed(ActionEvent e) {
                 clockTicks = clockTicks + 1;
                 if (clockTicks % 5 == 0) {
-                    moveTrainToNextStation();
+                    train1.moveVehicle();
+                    checkPassengerBoarding();
                 }
                 repaint();
             }
@@ -65,13 +65,13 @@ public class Panel extends Frame{
         });
     }
 
-    // Steps forward one stop, looping back to the start after the last stop.
-    public void moveTrainToNextStation() {
-        int lastIndex = route.stations.size() - 1;
-        if (stationIndex < lastIndex) {
-            stationIndex = stationIndex + 1;
-        } else if (stationIndex == lastIndex) {
-            stationIndex = 0;
+    // Boards pass1 when the train reaches East1, disembarks them at Percy Port.
+    public void checkPassengerBoarding() {
+        Stops curStop = train1.getCurStop();
+        if (curStop.equals(Stops.East1) && !train1.onBoard.contains(pass1)) {
+            train1.onBoard.add(pass1);
+        } else if (curStop.equals(Stops.PercyPort) && train1.onBoard.contains(pass1)) {
+            train1.onBoard.remove(pass1);
         }
     }
 
@@ -90,6 +90,9 @@ public class Panel extends Frame{
 
     //@Override
     public void paint(Graphics g) {
+        // Reset font each frame so the clock's bigger font doesn't carry over.
+        g.setFont(new Font("SansSerif", Font.PLAIN, 12));
+
         // Set Stroke Thickness
         Graphics2D g2d=(Graphics2D) g;
         g2d.setStroke(new BasicStroke(3));
@@ -267,31 +270,18 @@ public class Panel extends Frame{
         
         //count up to 16
 
-        //Vehicles
+        //time display
+        int displayTicks = (clockTicks / 5) * 5; // only changes once per real second
+        int minutes = displayTicks / 60;
+        int seconds = displayTicks % 60;
+        String clockText = String.format("%02d:%02d", minutes, seconds);
+
         g.setColor(Color.black);
-        g.drawString("Time: " + clockTicks, 20, 50);
-        drawTrainAndPassenger(g);
+        g.drawRect(30, 50, 140, 80);
+        g.setFont(new Font("TimeNewRoman", Font.BOLD, 30));
+        g.drawString(clockText, 60, 100);
+        train1.displayVehicle(g);
 
-    }
-
-    // Train sits on the route at the current station; passenger is drawn inside it.
-    public void drawTrainAndPassenger(Graphics g) {
-        Stops currentStop = route.stations.get(stationIndex);
-
-        int trainX = currentStop.x - trainWidth / 2;
-        int trainY = currentStop.y - trainHeight / 2;
-
-        g.setColor(Color.white);
-        g.fillRect(trainX, trainY, trainWidth, trainHeight);
-        g.setColor(Color.black);
-        g.drawRect(trainX, trainY, trainWidth, trainHeight);
-
-        int passengerSize = 8;
-        int passengerX = trainX + (trainWidth - passengerSize) / 2;
-        int passengerY = trainY + (trainHeight - passengerSize) / 2;
-
-        g.setColor(Color.orange);
-        g.fillOval(passengerX, passengerY, passengerSize, passengerSize);
     }
 
     public static void main(String[] args) {
