@@ -15,10 +15,12 @@ public class Stops {
     }
 
     // Named stops with pixel positions matching where Panel draws them.
-    public static final Stops Central   = new Stops(640, 360, "Central", 100);
-    public static final Stops East1     = new Stops(740, 360, "East1", 50);
-    public static final Stops East2     = new Stops(840, 360, "East2", 50);
+    public static final Stops Central= new Stops(640, 360, "Central", 100);
+    public static final Stops East1 = new Stops(740, 360, "East1", 50);
+    public static final Stops East2 = new Stops(840, 360, "East2", 50);
     public static final Stops PercyPort = new Stops(940, 360, "Percy Port", 50);
+    public static final Stops East3 = new Stops(1040, 460, "East3", 50);
+    public static final Stops East4 = new Stops(1040, 560, "East4", 50);
 
     public String getName() {
         return name;

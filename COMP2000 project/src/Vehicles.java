@@ -1,5 +1,8 @@
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.util.ArrayList;
 
 public class Vehicles {
@@ -50,21 +53,27 @@ public class Vehicles {
         }
     }
 
-    // White rectangle, black outline, sitting on the route at getCurStop().
+    // Translucent red rectangle, thin outline, labelled with the vehicle's name.
     public void displayVehicle(Graphics g){
         Stops curStop = getCurStop();
-        int x = curStop.x - width / 2;
-        int y = curStop.y - height / 2;
+        int x = curStop.x-width/2;
+        int y = curStop.y-height/2;
 
-        g.setColor(Color.white);
+        Graphics2D g2d=(Graphics2D) g;
+        g2d.setStroke(new BasicStroke(2));
+
+        g.setColor(new Color(255, 0, 0)); // red 30% opacity
         g.fillRect(x, y, width, height);
         g.setColor(Color.black);
         g.drawRect(x, y, width, height);
 
+        g.setFont(new Font("SansSerif", Font.BOLD, 12));
+        g.drawString(name, x, y-4);
+        //passonger display
         if(onBoard.size() > 0){
             int passengerSize = 8;
-            int passengerX = x + (width - passengerSize) / 2;
-            int passengerY = y + (height - passengerSize) / 2;
+            int passengerX = x +(width-passengerSize)/2;
+            int passengerY = y +(height-passengerSize)/2;
             g.setColor(Color.orange);
             g.fillOval(passengerX, passengerY, passengerSize, passengerSize);
         }

@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Passenger {
     // Walks a passenger from start to end, one stop at a time along a route.
     // Sets a "reached destination" message once curStop equals end.
@@ -58,5 +60,19 @@ public class Passenger {
 
     public Stops getEnd() {
         return end;
+    }
+
+    // Example passenger commuting between East1 and Percy Port.
+    public static Passenger pass1() {
+        return new Passenger("pass1", Stops.East1, Stops.PercyPort);
+    }
+
+    // Boards this passenger when curStop matches start, disembarks at end.
+    public void checkBoarding(Stops curStop, ArrayList<Passenger> onBoard) {
+        if (curStop.equals(start) && !onBoard.contains(this)) {
+            onBoard.add(this);
+        } else if (curStop.equals(end) && onBoard.contains(this)) {
+            onBoard.remove(this);
+        }
     }
 }

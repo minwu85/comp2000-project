@@ -15,14 +15,13 @@ public class Panel extends Frame{
     int majorStation = 40; //Big station 
     int normalStation= 20;//Normal station
 
-    // Train example, driven by a clock started with space.
-    Train train1 = new Train(50, "Choo Choo", Routes.line1());
+    // Train running the red line, driven by a clock started with space.
+    Train train1 = Train.t1();
 
-    int clockTicks = 0; // 1 real second = 5 ticks
+    Time time = new Time();
     Timer clock;
 
-    // Waits at East1, rides to Percy Port, then disembarks there.
-    Passenger pass1 = new Passenger("pass1", Stops.East1, Stops.PercyPort);
+    Passenger pass1 = Passenger.pass1();
 
     Image dbImage;
     Graphics dbGraphics;
@@ -46,10 +45,10 @@ public class Panel extends Frame{
         // Ticks every 200ms (5 ticks/sec); every 5th tick moves the train.
         clock = new Timer(200, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                clockTicks = clockTicks + 1;
-                if (clockTicks % 5 == 0) {
+                time.advance();
+                if (time.isOnSecond()) {
                     train1.moveVehicle();
-                    checkPassengerBoarding();
+                    pass1.checkBoarding(train1.getCurStop(), train1.onBoard);
                 }
                 repaint();
             }
@@ -63,16 +62,6 @@ public class Panel extends Frame{
                 }
             }
         });
-    }
-
-    // Boards pass1 when the train reaches East1, disembarks them at Percy Port.
-    public void checkPassengerBoarding() {
-        Stops curStop = train1.getCurStop();
-        if (curStop.equals(Stops.East1) && !train1.onBoard.contains(pass1)) {
-            train1.onBoard.add(pass1);
-        } else if (curStop.equals(Stops.PercyPort) && train1.onBoard.contains(pass1)) {
-            train1.onBoard.remove(pass1);
-        }
     }
 
     // Draws to an off-screen image first, then blits it in one go, so the
@@ -270,11 +259,8 @@ public class Panel extends Frame{
         
         //count up to 16
 
-        //time display
-        int displayTicks = (clockTicks / 5) * 5; // only changes once per real second
-        int minutes = displayTicks / 60;
-        int seconds = displayTicks % 60;
-        String clockText = String.format("%02d:%02d", minutes, seconds);
+        //Vehicles
+        String clockText = time.getClockText();
 
         g.setColor(Color.black);
         g.drawRect(30, 50, 140, 80);
@@ -288,3 +274,4 @@ public class Panel extends Frame{
         new Panel();
     }
 }
+

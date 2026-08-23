@@ -19,6 +19,18 @@ public class Routes {
         return new Routes("Line1", firstLine);
     }
 
+    // The full red line, running past Percy Port to its actual end.
+    public static Routes redLine() {
+        ArrayList<Stops> stops = new ArrayList<>();
+        stops.add(Stops.Central);
+        stops.add(Stops.East1);
+        stops.add(Stops.East2);
+        stops.add(Stops.PercyPort);
+        stops.add(Stops.East3);
+        stops.add(Stops.East4);
+        return new Routes("Red Line", stops);
+    }
+
     // Next stop walking from current towards destination, either direction. Null if arrived or not on route.
     public Stops getNextTowards(Stops current, Stops destination) {
         int curIndex = stations.indexOf(current);
