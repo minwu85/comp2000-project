@@ -1,6 +1,11 @@
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import javax.swing.Timer;
 
 public class Panel extends Frame{
 
@@ -9,6 +14,19 @@ public class Panel extends Frame{
 
     int majorStation = 40; //Big station 
     int normalStation= 20;//Normal station
+
+    // Train + passenger example, driven by a clock started with space.
+    Routes route = Routes.line1();
+    int stationIndex = 0;
+
+    int trainWidth = 30;
+    int trainHeight = 16;
+
+    int clockTicks = 0; // 1 real second = 5 ticks
+    Timer clock;
+
+    Image dbImage;
+    Graphics dbGraphics;
 
 
     public Panel() {
@@ -22,6 +40,52 @@ public class Panel extends Frame{
                 System.exit(0);
             }
         });
+
+        setFocusable(true);
+        requestFocusInWindow();
+
+        // Ticks every 200ms (5 ticks/sec); every 5th tick moves the train.
+        clock = new Timer(200, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                clockTicks = clockTicks + 1;
+                if (clockTicks % 5 == 0) {
+                    moveTrainToNextStation();
+                }
+                repaint();
+            }
+        });
+
+        // One space press starts the clock; the train then moves on its own.
+        addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_SPACE && !clock.isRunning()) {
+                    clock.start();
+                }
+            }
+        });
+    }
+
+    // Steps forward one stop, looping back to the start after the last stop.
+    public void moveTrainToNextStation() {
+        int lastIndex = route.stations.size() - 1;
+        if (stationIndex < lastIndex) {
+            stationIndex = stationIndex + 1;
+        } else if (stationIndex == lastIndex) {
+            stationIndex = 0;
+        }
+    }
+
+    // Draws to an off-screen image first, then blits it in one go, so the
+    // clock/train redraw doesn't flash the whole panel.
+    public void update(Graphics g) {
+        if (dbImage == null) {
+            dbImage = createImage(width, height);
+            dbGraphics = dbImage.getGraphics();
+        }
+        dbGraphics.setColor(getBackground());
+        dbGraphics.fillRect(0, 0, width, height);
+        paint(dbGraphics);
+        g.drawImage(dbImage, 0, 0, this);
     }
 
     //@Override
@@ -203,13 +267,34 @@ public class Panel extends Frame{
         
         //count up to 16
 
-        //Vehicles 
+        //Vehicles
+        g.setColor(Color.black);
+        g.drawString("Time: " + clockTicks, 20, 50);
+        drawTrainAndPassenger(g);
 
+    }
 
+    // Train sits on the route at the current station; passenger is drawn inside it.
+    public void drawTrainAndPassenger(Graphics g) {
+        Stops currentStop = route.stations.get(stationIndex);
+
+        int trainX = currentStop.x - trainWidth / 2;
+        int trainY = currentStop.y - trainHeight / 2;
+
+        g.setColor(Color.white);
+        g.fillRect(trainX, trainY, trainWidth, trainHeight);
+        g.setColor(Color.black);
+        g.drawRect(trainX, trainY, trainWidth, trainHeight);
+
+        int passengerSize = 8;
+        int passengerX = trainX + (trainWidth - passengerSize) / 2;
+        int passengerY = trainY + (trainHeight - passengerSize) / 2;
+
+        g.setColor(Color.orange);
+        g.fillOval(passengerX, passengerY, passengerSize, passengerSize);
     }
 
     public static void main(String[] args) {
         new Panel();
     }
 }
-

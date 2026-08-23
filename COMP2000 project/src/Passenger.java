@@ -1,32 +1,51 @@
 public class Passenger {
-    /*set the end and start stops for the passenger
-        eg let passager 1 as a type (student): Stop A - C
-        make a check point to see if the passenger has reached the end stop
-        if not then keep moving to the next stop until the end stop is reached
-        or once the passager dectets the station name matching the passenger's end stop 
-        therefore the passenger exit the train, once exit is display a correct message for 2 sec
-        let a passenger pass1 = new Passenger(Stops.C, Stops.A);
-        Passenger pass1 = new Passenger(Stops.Central, Stops.East1);
-        Passenger pass2 = new Passenger(Stops.East1, Stops.Central);
-        Let a passage in a different colour shape display over the train stop once enter click then the pass1 
-        pass1 will move to the next stop until it reaches the end stop
+    // Walks a passenger from start to end, one stop at a time along a route.
+    // Sets a "reached destination" message once curStop equals end.
 
-        once it reaches East1 then display a message "pass1 reached destination" for 2 sec
-        then remove the passenger from the train stop and let it disappear from the screen
-        */
-
+    private String name;
     private Stops start;
     private Stops end;
     private Stops curStop;
+    private String message;
 
-    public Passenger(Stops start, Stops end) {
+    public Passenger(String name, Stops start, Stops end) {
+        this.name = name;
         this.start = start;
         this.end = end;
         this.curStop = start;
     }
-        
+
     public boolean checkStop() {
-        return curStop == end;
+        return curStop.equals(end);
+    }
+
+    // Moves one stop closer to the destination on the given route.
+    // Returns true once the passenger has arrived (including if they were
+    // already there), false if there's still more of the route to go.
+    public boolean moveToNextStop(Routes route) {
+        if (checkStop()) {
+            message = name + " reached destination";
+            return true;
+        }
+
+        Stops next = route.getNextTowards(curStop, end);
+        if (next != null) {
+            curStop = next;
+        }
+
+        if (checkStop()) {
+            message = name + " reached destination";
+            return true;
+        }
+        return false;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public Stops getCurStop() {
@@ -40,8 +59,4 @@ public class Passenger {
     public Stops getEnd() {
         return end;
     }
-
-    
 }
-    
-
