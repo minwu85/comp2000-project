@@ -13,8 +13,8 @@ public class Routes {
     public static Routes line1() {
         ArrayList<Stops> firstLine = new ArrayList<>();
         firstLine.add(Stops.Central);
-        firstLine.add(Stops.East1);
-        firstLine.add(Stops.East2);
+        firstLine.add(Stops.Jubilee);
+        firstLine.add(Stops.Bakerville);
         firstLine.add(Stops.PercyPort);
         return new Routes("Line1", firstLine);
     }
@@ -23,11 +23,11 @@ public class Routes {
     public static Routes redLine() {
         ArrayList<Stops> stops = new ArrayList<>();
         stops.add(Stops.Central);
-        stops.add(Stops.East1);
-        stops.add(Stops.East2);
+        stops.add(Stops.Jubilee);
+        stops.add(Stops.Bakerville);
         stops.add(Stops.PercyPort);
-        stops.add(Stops.East3);
-        stops.add(Stops.East4);
+        stops.add(Stops.Merrybrook);
+        stops.add(Stops.Brookchester);
         return new Routes("Red Line", stops);
     }
 
