@@ -4,6 +4,8 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 public class Vehicles {
     int capacity; 
@@ -48,8 +50,8 @@ public class Vehicles {
         int lastIndex = route.stations.size() - 1;
         if(stationIndex < lastIndex){
             stationIndex = stationIndex + 1;
-        } else if(stationIndex == lastIndex){
-            stationIndex = 0;
+        } else if(stationIndex == this.route.stations.size()){
+            Collections.reverse(this.route.stations);
         }
     }
 
@@ -78,11 +80,13 @@ public class Vehicles {
             g.fillOval(passengerX, passengerY, passengerSize, passengerSize);
         }
     }
-
-    public void reverseRoute(){
-        //if getCurStop == route.size()
-        //reverse route
+    
+    /*public void reverseRoute(){
+        if(stationIndex == this.route.stations.size()){
+            Collections.reverse(this.route.stations);
+        }
     }
+        */
 
 
 
