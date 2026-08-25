@@ -2,8 +2,8 @@ public class App {
     public static void main(String[] args) throws Exception {
         Routes line1 = Routes.line1();
 
-        Passenger pass1 = new Passenger("pass1", Stops.Central, Stops.East1);
-        Passenger pass2 = new Passenger("pass2", Stops.East1, Stops.Central);
+        Passenger pass1 = new Passenger("pass1", Stops.Central, Stops.Jubilee);
+        Passenger pass2 = new Passenger("pass2", Stops.Jubilee, Stops.Central);
 
         runPassenger(pass1, line1);
         runPassenger(pass2, line1);

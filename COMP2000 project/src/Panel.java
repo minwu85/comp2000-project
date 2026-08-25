@@ -272,6 +272,11 @@ public class Panel extends Frame{
         //count up to 16
 
         //Vehicles
+        
+        //topPanel
+        //add a side bar/panel display on top of screen
+        //this side bar/panel will display the time, pause and continue buttons
+        //time display
         String clockText = time.getClockText();
 
         g.setColor(Color.black);
@@ -280,6 +285,15 @@ public class Panel extends Frame{
         g.drawString(clockText, 60, 100);
         train1.displayVehicle(g);
 
+        //left panel
+        //then add a left side bar/panel display on the left of the screen
+        //listing the number of passengers and the number of passengers on the train
+        //g.setColor(Color.black);
+        //g.drawRect(30, 150, 140, 80);
+        //g.setFont(new Font("TimeNewRoman", Font.BOLD, 20));
+        //g.drawString("Passengers: " + passengers.size(), 40, 190);
+        //g.drawString("On Train: " + train1.getPassengers().size(), 40, 210);
+        
     }
 
     public static void main(String[] args) {
