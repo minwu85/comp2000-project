@@ -3,9 +3,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import javax.swing.Timer;
+import java.util.ArrayList;
 
 public class Panel extends Frame{
 
@@ -18,10 +20,10 @@ public class Panel extends Frame{
     // Train running the red line, driven by a clock started with space.
     Train train1 = Train.t1();
 
-    Time time = new Time();
-    Timer clock;
+    Time time;
 
     Passenger pass1 = Passenger.pass1();
+    ArrayList<Passenger> passengers = new ArrayList<>();
 
     Image dbImage;
     Graphics dbGraphics;
@@ -42,8 +44,10 @@ public class Panel extends Frame{
         setFocusable(true);
         requestFocusInWindow();
 
-        // Ticks every 200ms (5 ticks/sec); every 5th tick moves the train.
-        clock = new Timer(200, new ActionListener() {
+        passengers.add(pass1);
+
+        // Every 5th tick (1 real second) moves the train and checks boarding.
+        time = new Time(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 time.advance();
                 if (time.isOnSecond()) {
@@ -54,11 +58,21 @@ public class Panel extends Frame{
             }
         });
 
-        // One space press starts the clock; the train then moves on its own.
+        // Space toggles the clock: first press starts it, next press pauses, next resumes.
         addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_SPACE && !clock.isRunning()) {
-                    clock.start();
+                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                    time.toggle();
+                }
+            }
+        });
+
+        // Clicking the pause/continue button does the same thing as space.
+        addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (time.isButtonClicked(e.getX(), e.getY(), width)) {
+                    time.toggle();
+                    repaint();
                 }
             }
         });
@@ -272,28 +286,28 @@ public class Panel extends Frame{
         //count up to 16
 
         //Vehicles
-        
-        //topPanel
-        //add a side bar/panel display on top of screen
-        //this side bar/panel will display the time, pause and continue buttons
-        //time display
-        String clockText = time.getClockText();
 
-        g.setColor(Color.black);
-        g.drawRect(30, 50, 140, 80);
-        g.setFont(new Font("TimeNewRoman", Font.BOLD, 30));
-        g.drawString(clockText, 60, 100);
+        //topPanel: background bar, clock, and pause/continue button, all drawn by Time.
+        time.display(g, width);
         train1.displayVehicle(g);
 
-        //left panel
-        //then add a left side bar/panel display on the left of the screen
-        //listing the number of passengers and the number of passengers on the train
-        //g.setColor(Color.black);
-        //g.drawRect(30, 150, 140, 80);
-        //g.setFont(new Font("TimeNewRoman", Font.BOLD, 20));
-        //g.drawString("Passengers: " + passengers.size(), 40, 190);
-        //g.drawString("On Train: " + train1.getPassengers().size(), 40, 210);
-        
+        //left panel: background bar plus passenger counts.
+        drawLeftPanel(g);
+
+    }
+
+    public void drawLeftPanel(Graphics g) {
+        int panelWidth = 180;
+        int top = time.getTopPanelHeight();
+
+        g.setColor(new Color(230, 230, 230));
+        g.fillRect(0, top, panelWidth, height - top);
+        g.setColor(Color.black);
+        g.drawRect(0, top, panelWidth, height - top);
+
+        g.setFont(new Font("SansSerif", Font.BOLD, 16));
+        g.drawString("Passengers: " + passengers.size(), 40, 190);
+        g.drawString("On Train: " + train1.getPassengers().size(), 40, 210);
     }
 
     public static void main(String[] args) {

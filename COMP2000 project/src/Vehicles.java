@@ -4,7 +4,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 
 public class Vehicles {
@@ -31,6 +30,10 @@ public class Vehicles {
         return route.stations.get(stationIndex);
     }
 
+    public ArrayList<Passenger> getPassengers(){
+        return onBoard;
+    }
+
     public void addPassangers(){
         if(onBoard.size() == capacity){
             //Move to next station
@@ -45,13 +48,14 @@ public class Vehicles {
        // 
     }
 
-    // Steps forward one stop, looping back to the start after the last stop.
+    // Steps forward one stop; reverses direction once it reaches the end of the line.
     public void moveVehicle(){
         int lastIndex = route.stations.size() - 1;
         if(stationIndex < lastIndex){
             stationIndex = stationIndex + 1;
-        } else if(stationIndex == this.route.stations.size()){
-            Collections.reverse(this.route.stations);
+        } else {
+            Collections.reverse(route.stations);
+            stationIndex = 0;
         }
     }
 
@@ -64,7 +68,7 @@ public class Vehicles {
         Graphics2D g2d=(Graphics2D) g;
         g2d.setStroke(new BasicStroke(2));
 
-        g.setColor(new Color(255, 0, 0)); // red 30% opacity
+        g.setColor(new Color(255, 0, 0)); // solid red
         g.fillRect(x, y, width, height);
         g.setColor(Color.black);
         g.drawRect(x, y, width, height);
@@ -80,14 +84,6 @@ public class Vehicles {
             g.fillOval(passengerX, passengerY, passengerSize, passengerSize);
         }
     }
-    
-    /*public void reverseRoute(){
-        if(stationIndex == this.route.stations.size()){
-            Collections.reverse(this.route.stations);
-        }
-    }
-        */
-
 
 
 

@@ -62,9 +62,8 @@ public class Passenger {
         return end;
     }
 
-    // Example passenger commuting between East1 and Percy Port.
+    // Example passenger commuting between Jubilee and Percy Port.
     public static Passenger pass1() {
-
         return new Passenger("pass1", Stops.Jubilee, Stops.PercyPort);
     }
 
