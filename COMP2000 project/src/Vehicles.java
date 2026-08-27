@@ -30,6 +30,18 @@ public class Vehicles {
         return route.stations.get(stationIndex);
     }
 
+    // What moveVehicle() will step to next, including the bounce at the end of the line.
+    public Stops getNextStop(){
+        int lastIndex = route.stations.size() - 1;
+        if(stationIndex < lastIndex){
+            return route.stations.get(stationIndex + 1);
+        }
+        if(lastIndex > 0){
+            return route.stations.get(lastIndex - 1); // where index 1 will be after the reverse
+        }
+        return null;
+    }
+
     public ArrayList<Passenger> getPassengers(){
         return onBoard;
     }

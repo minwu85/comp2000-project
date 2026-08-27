@@ -342,8 +342,7 @@ public class Panel extends Frame{
 
         // Side panels: drawn on the untranslated graphics, so dragging the
         // map never moves them.
-        String trainInfo = train1.getName() + " (" + train1.route.name + ")";
-        sidePanel.display(screenGraphics, width, height, time, passengers.size(), train1.getPassengers().size(), trainInfo);
+        sidePanel.display(screenGraphics, width, height, time, passengers.size(), train1);
     }
 
     public static void main(String[] args) {
