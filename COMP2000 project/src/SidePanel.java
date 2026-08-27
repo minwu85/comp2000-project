@@ -5,7 +5,7 @@ import java.awt.Graphics;
 public class SidePanel {
 
     int topHeight = 60;
-    int leftWidth = 200;
+    int leftWidth = 220;
 
     int buttonSize = 40;
     int buttonMargin = 20;
@@ -31,9 +31,9 @@ public class SidePanel {
 
     // Draws the top bar (clock + pause/continue) and the left bar (passenger counts).
     // Always called on an untranslated Graphics, so it stays fixed while the map is dragged.
-    public void display(Graphics g, int panelWidth, int panelHeight, Time time, int passengerCount, int onTrainCount) {
+    public void display(Graphics g, int panelWidth, int panelHeight, Time time, int passengerCount, int onTrainCount, String trainInfo) {
         drawTopBar(g, panelWidth, time);
-        drawLeftBar(g, panelHeight, passengerCount, onTrainCount);
+        drawLeftBar(g, panelHeight, passengerCount, onTrainCount, trainInfo);
     }
 
     private void drawTopBar(Graphics g, int panelWidth, Time time) {
@@ -48,7 +48,7 @@ public class SidePanel {
         drawPauseButton(g, panelWidth, time.isRunning());
     }
 
-    private void drawLeftBar(Graphics g, int panelHeight, int passengerCount, int onTrainCount) {
+    private void drawLeftBar(Graphics g, int panelHeight, int passengerCount, int onTrainCount, String trainInfo) {
         g.setColor(new Color(230, 230, 230));
         g.fillRect(0, topHeight, leftWidth, panelHeight - topHeight);
         g.setColor(Color.black);
@@ -57,6 +57,7 @@ public class SidePanel {
         g.setFont(new Font("SansSerif", Font.BOLD, 16));
         g.drawString("Passengers: " + passengerCount, 40, 190);
         g.drawString("On Train: " + onTrainCount, 40, 210);
+        g.drawString("Train: " + trainInfo, 40, 230);
     }
 
     // True if (mouseX, mouseY) is inside the pause/continue button.

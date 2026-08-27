@@ -45,16 +45,20 @@ public class Panel extends Frame{
         setSize(width, height);
         setVisible(true);
 
-        // The title bar takes up part of the window; grow the frame so the
-        // drawable area is still exactly width x height, and blit our
-        // off-screen image below the title bar instead of behind it.
-        insets = getInsets();
-        setSize(width + insets.left + insets.right, height + insets.top + insets.bottom);
-
         // Window closing adapter to safely close the application
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
                 System.exit(0);
+            }
+
+            // getInsets() right after setVisible() is unreliable — the native
+            // peer isn't fully realized yet and often reports 0. windowOpened
+            // fires once the window is actually up, so the title bar height
+            // read here is the real one, not a stale/zero guess.
+            public void windowOpened(WindowEvent we) {
+                insets = getInsets();
+                setSize(width + insets.left + insets.right, height + insets.top + insets.bottom);
+                repaint();
             }
         });
 
@@ -127,6 +131,7 @@ public class Panel extends Frame{
         dbGraphics.setColor(getBackground());
         dbGraphics.fillRect(0, 0, width, height);
         paint(dbGraphics);
+        insets = getInsets(); // read fresh each frame; a one-time read can be stale
         g.drawImage(dbImage, insets.left, insets.top, this);
     }
 
@@ -337,7 +342,8 @@ public class Panel extends Frame{
 
         // Side panels: drawn on the untranslated graphics, so dragging the
         // map never moves them.
-        sidePanel.display(screenGraphics, width, height, time, passengers.size(), train1.getPassengers().size());
+        String trainInfo = train1.getName() + " (" + train1.route.name + ")";
+        sidePanel.display(screenGraphics, width, height, time, passengers.size(), train1.getPassengers().size(), trainInfo);
     }
 
     public static void main(String[] args) {

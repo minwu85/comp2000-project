@@ -34,6 +34,10 @@ public class Vehicles {
         return onBoard;
     }
 
+    public String getName(){
+        return name;
+    }
+
     public void addPassangers(){
         if(onBoard.size() == capacity){
             //Move to next station

@@ -8,7 +8,7 @@ public class App {
         runPassenger(pass1, line1);
         runPassenger(pass2, line1);
     }
-
+    //get passenger
     private static void runPassenger(Passenger p, Routes route) throws InterruptedException {
         System.out.println(p.getName() + " boards at " + p.getStart());
 
