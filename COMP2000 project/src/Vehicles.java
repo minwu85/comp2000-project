@@ -1,6 +1,7 @@
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
@@ -90,12 +91,16 @@ public class Vehicles {
         g.drawRect(x, y, width, height);
 
         g.setFont(new Font("SansSerif", Font.BOLD, 12));
-        g.drawString(name, x, y-4);
+        FontMetrics fm = g.getFontMetrics();
+        int textX = x + (width - fm.stringWidth(name)) / 2;
+        int textY = y + (height + fm.getAscent()) / 2 - 2;
+        g.setColor(Color.white);
+        g.drawString(name, textX, textY);
         //passonger display
         if(onBoard.size() > 0){
-            int passengerSize = 8;
-            int passengerX = x +(width-passengerSize)/2;
-            int passengerY = y +(height-passengerSize)/2;
+            int passengerSize = 6;
+            int passengerX = x + width - passengerSize - 2;
+            int passengerY = y + 2;
             g.setColor(Color.orange);
             g.fillOval(passengerX, passengerY, passengerSize, passengerSize);
         }

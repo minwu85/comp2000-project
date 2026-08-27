@@ -34,8 +34,8 @@ public class SidePanel {
         return false;
     }
 
-    // Draws the top bar (clock + pause/continue) and the left bar (train card)
-    // Always called on an untranslated Graphics, so it stays fixed while the map is dragged
+    // Draws the top bar (clock + pause/continue) and the left bar (train card).
+    // Always called on an untranslated Graphics, so it stays fixed while the map is dragged.
     public void display(Graphics g, int panelWidth, int panelHeight, Time time, int totalPassengers, Vehicles train) {
         drawTopBar(g, panelWidth, time);
         drawLeftBar(g, panelHeight, totalPassengers, train);
@@ -46,21 +46,22 @@ public class SidePanel {
         g.fillRect(0, 0, panelWidth, topHeight);
         g.setColor(accentLine);
         g.fillRect(0, topHeight - 3, panelWidth, 3);
-
+       
         g.setColor(Color.white);
         g.setFont(new Font("Times New Roman", Font.BOLD, 28));
         g.drawString(time.getClockText(), 30, 40);
-
+        
         drawPauseButton(g, panelWidth, time.isRunning());
     }
+
     private void drawLeftBar(Graphics g, int panelHeight, int totalPassengers, Vehicles train) {
         g.setColor(panelBody);
         g.fillRect(0, topHeight, leftWidth, panelHeight - topHeight);
-        //no need, can be replace with other info 
-        //g.setColor(Color.white);
-        //g.setFont(new Font("SansSerif", Font.BOLD, 16));
-        //g.drawString("Passengers: " + totalPassengers, 20, topHeight + 30);
-
+        /* no need, which can be replace with other infor
+        g.setColor(Color.white);
+        g.setFont(new Font("SansSerif", Font.BOLD, 16));
+        g.drawString("Passengers: " + totalPassengers, 20, topHeight + 30);
+        */
         drawTrainCard(g, topHeight + 45, train);
     }
 
@@ -81,10 +82,10 @@ public class SidePanel {
         int textY = cardY + 26;
 
         g.setColor(Color.black);
-        g.setFont(new Font("Times New Roman", Font.BOLD, 14));
+        g.setFont(new Font("SansSerif", Font.BOLD, 14));
         g.drawString(train.getName() + " (" + train.route.name + ")", textX, textY);
 
-        g.setFont(new Font("Times New Roman", Font.PLAIN, 12));
+        g.setFont(new Font("SansSerif", Font.PLAIN, 12));
         g.drawString("\u2022 On train: " + train.getPassengers().size(), textX, textY + 22);
         g.drawString("\u2022 Current: " + train.getCurStop().getName(), textX, textY + 40);
 
@@ -101,7 +102,7 @@ public class SidePanel {
         g.drawRect(x, y, size, size);
 
         g.setColor(Color.white);
-        g.setFont(new Font("Times New Roman", Font.BOLD, 14));
+        g.setFont(new Font("SansSerif", Font.BOLD, 14));
         g.drawString(label, x + 10, y + size / 2 + 5);
     }
 
@@ -129,7 +130,7 @@ public class SidePanel {
         g.fillRect(x, y, buttonSize, buttonSize);
         g.setColor(Color.black);
         g.drawRect(x, y, buttonSize, buttonSize);
-        // Draw  button
+
         if (running) {
             g.fillRect(x + 10, y + 8, 7, buttonSize - 16);
             g.fillRect(x + buttonSize - 17, y + 8, 7, buttonSize - 16);
