@@ -5,6 +5,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class Panel extends Frame{
     Train train1 = Train.t1();
 
     Time time;
+    SidePanel sidePanel = new SidePanel();
 
     Passenger pass1 = Passenger.pass1();
     ArrayList<Passenger> passengers = new ArrayList<>();
@@ -28,11 +30,26 @@ public class Panel extends Frame{
     Image dbImage;
     Graphics dbGraphics;
 
+    Insets insets = new Insets(0, 0, 0, 0);
+
+    // Dragging the map pans it; the side panels stay fixed on screen.
+    int panOffsetX = 0;
+    int panOffsetY = 0;
+    int dragStartX;
+    int dragStartY;
+    boolean dragging = false;
+
 
     public Panel() {
         setTitle("Transit Sim");
         setSize(width, height);
         setVisible(true);
+
+        // The title bar takes up part of the window; grow the frame so the
+        // drawable area is still exactly width x height, and blit our
+        // off-screen image below the title bar instead of behind it.
+        insets = getInsets();
+        setSize(width + insets.left + insets.right, height + insets.top + insets.bottom);
 
         // Window closing adapter to safely close the application
         addWindowListener(new WindowAdapter() {
@@ -67,11 +84,33 @@ public class Panel extends Frame{
             }
         });
 
-        // Clicking the pause/continue button does the same thing as space.
+        // Clicking the button toggles the clock; dragging the map (not the side panels) pans it.
         addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                if (!sidePanel.isOverPanel(e.getX(), e.getY(), width, height)) {
+                    dragStartX = e.getX() - panOffsetX;
+                    dragStartY = e.getY() - panOffsetY;
+                    dragging = true;
+                }
+            }
+
+            public void mouseReleased(MouseEvent e) {
+                dragging = false;
+            }
+
             public void mouseClicked(MouseEvent e) {
-                if (time.isButtonClicked(e.getX(), e.getY(), width)) {
+                if (sidePanel.isButtonClicked(e.getX(), e.getY(), width)) {
                     time.toggle();
+                    repaint();
+                }
+            }
+        });
+
+        addMouseMotionListener(new MouseMotionAdapter() {
+            public void mouseDragged(MouseEvent e) {
+                if (dragging) {
+                    panOffsetX = e.getX() - dragStartX;
+                    panOffsetY = e.getY() - dragStartY;
                     repaint();
                 }
             }
@@ -88,13 +127,18 @@ public class Panel extends Frame{
         dbGraphics.setColor(getBackground());
         dbGraphics.fillRect(0, 0, width, height);
         paint(dbGraphics);
-        g.drawImage(dbImage, 0, 0, this);
+        g.drawImage(dbImage, insets.left, insets.top, this);
     }
 
     //@Override
-    public void paint(Graphics g) {
+    public void paint(Graphics screenGraphics) {
         // Reset font each frame so the clock's bigger font doesn't carry over.
-        g.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        screenGraphics.setFont(new Font("SansSerif", Font.PLAIN, 12));
+
+        // Map layer: shifted by the pan offset, so dragging moves the network
+        // and stations without moving the side panels drawn later.
+        Graphics g = screenGraphics.create();
+        g.translate(panOffsetX, panOffsetY);
 
         // Set Stroke Thickness
         Graphics2D g2d=(Graphics2D) g;
@@ -286,28 +330,14 @@ public class Panel extends Frame{
         //count up to 16
 
         //Vehicles
-
-        //topPanel: background bar, clock, and pause/continue button, all drawn by Time.
-        time.display(g, width);
         train1.displayVehicle(g);
 
-        //left panel: background bar plus passenger counts.
-        drawLeftPanel(g);
+        // Done with the map layer.
+        g.dispose();
 
-    }
-
-    public void drawLeftPanel(Graphics g) {
-        int panelWidth = 180;
-        int top = time.getTopPanelHeight();
-
-        g.setColor(new Color(230, 230, 230));
-        g.fillRect(0, top, panelWidth, height - top);
-        g.setColor(Color.black);
-        g.drawRect(0, top, panelWidth, height - top);
-
-        g.setFont(new Font("SansSerif", Font.BOLD, 16));
-        g.drawString("Passengers: " + passengers.size(), 40, 190);
-        g.drawString("On Train: " + train1.getPassengers().size(), 40, 210);
+        // Side panels: drawn on the untranslated graphics, so dragging the
+        // map never moves them.
+        sidePanel.display(screenGraphics, width, height, time, passengers.size(), train1.getPassengers().size());
     }
 
     public static void main(String[] args) {

@@ -31,8 +31,7 @@ public class Routes {
         return new Routes("Red Line", stops);
     }
 
-    // Next stop walking from current towards destination, either direction. 
-    // Null if arrived or not on route.
+    // Next stop walking from current towards destination, either direction. Null if arrived or not on route.
     public Stops getNextTowards(Stops current, Stops destination) {
         int curIndex = stations.indexOf(current);
         int destIndex = stations.indexOf(destination);
@@ -48,7 +47,7 @@ public class Routes {
         return stations.get(curIndex + step);
     }
 
-    //works for Stops or any subclass.
+    // Bounded generic: works for Stops or any subclass.
     public static <T extends Stops> boolean isOnRoute(Routes route, T stop) {
         return route.stations.contains(stop);
     }
