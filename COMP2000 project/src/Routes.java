@@ -22,6 +22,9 @@ public class Routes {
     // The full red line, running past Percy Port to its actual end.
     public static Routes redLine() {
         ArrayList<Stops> stops = new ArrayList<>();
+        //stops.add(Stops.blank);
+        //stops.add(Stops.blank);
+        //stops.add(Stops.template);
         stops.add(Stops.Central);
         stops.add(Stops.Jubilee);
         stops.add(Stops.Bakerville);
