@@ -12,6 +12,9 @@ public class Routes {
     // Builds the example line without the old self-constructing field bug.
     public static Routes line1() {
         ArrayList<Stops> firstLine = new ArrayList<>();
+        firstLine.add(Stops.TownHall);
+        firstLine.add(Stops.Eagleston);
+        firstLine.add(Stops.Rosebury); 
         firstLine.add(Stops.Central);
         firstLine.add(Stops.Jubilee);
         firstLine.add(Stops.Bakerville);
@@ -25,6 +28,9 @@ public class Routes {
         //stops.add(Stops.blank);
         //stops.add(Stops.blank);
         //stops.add(Stops.template);
+        stops.add(Stops.TownHall);
+        stops.add(Stops.Eagleston);
+        stops.add(Stops.Rosebury);
         stops.add(Stops.Central);
         stops.add(Stops.Jubilee);
         stops.add(Stops.Bakerville);

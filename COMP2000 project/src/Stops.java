@@ -15,12 +15,16 @@ public class Stops {
     }
 
     // Named stops with pixel positions matching where Panel draws them.
+    public static final Stops TownHall = new Stops(640, 60, "Town Hall", 100);
+    public static final Stops Eagleston = new Stops(640, 160, "Eagleston", 50);
+    public static final Stops Rosebury = new Stops(640, 260, "Rosebury", 50);
     public static final Stops Central= new Stops(640, 360, "Central", 100);
     public static final Stops Jubilee = new Stops(740, 360, "Jubilee", 50);
     public static final Stops Bakerville = new Stops(840, 360, "Bakerville", 50);
     public static final Stops PercyPort = new Stops(940, 360, "Percy Port", 50);
     public static final Stops Merrybrook = new Stops(1040, 460, "Merrybrook", 50);
     public static final Stops Brookchester = new Stops(1040, 560, "Brookchester", 50);
+    
 
     public static final Stops SunsetPoint = new Stops(360, 60, "Sunset Point", 50);
 
