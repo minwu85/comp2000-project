@@ -285,18 +285,19 @@ public class Panel extends Frame{
         g.drawOval(width/2 -normalStation/2 -400, height/2 -normalStation/2 - 200, normalStation, normalStation); 
         
         //Station3.1
-        g.drawString("template", width/2 -normalStation/2 + 30, height/2 -normalStation/2 - 85);              
+        g.drawString("Rosebury", width/2 -normalStation/2 + 30, height/2 -normalStation/2 - 85);              
         g.setColor(Color.gray);
         g.fillOval(width/2 -normalStation/2 , height/2 -normalStation/2 - 100, normalStation, normalStation);  
         g.setColor(Color.black);
         g.drawOval(width/2 -normalStation/2 , height/2 -normalStation/2 - 100, normalStation, normalStation); 
         //Station 3.2
+        g.drawString("Eagleston", width/2 -normalStation/2 + 30, height/2 -normalStation/2 - 185);              
         g.setColor(Color.gray);
         g.fillOval(width/2 -normalStation/2 , height/2 -normalStation/2 - 200, normalStation, normalStation);  
         g.setColor(Color.black);
         g.drawOval(width/2 -normalStation/2 , height/2 -normalStation/2 - 200, normalStation, normalStation); 
         //Station 3.3
-        g.drawString("template", width/2 -majorStation/2, height/2 -majorStation/2 + 100);
+        g.drawString("Town Hall", width/2 -majorStation/2 + 50, height/2 -majorStation/2 - 275);
         g.setColor(Color.gray);
         g.fillOval(width/2 -majorStation/2 , height/2 -majorStation/2 - 300, majorStation, majorStation);  
         g.setColor(Color.black);
@@ -315,6 +316,7 @@ public class Panel extends Frame{
         g.setColor(Color.black);
         g.drawOval(width/2 -majorStation/2 -200, height/2 -majorStation/2 +200, majorStation, majorStation); 
         //Station 4.2
+        g.drawString("Celeste", width/2 -normalStation/2 - 270, height/2 -normalStation/2 + 300 + 15);
         g.setColor(Color.gray);
         g.fillOval(width/2 -normalStation/2 -300, height/2 -normalStation/2 +300, normalStation, normalStation);  
         g.setColor(Color.black);
@@ -322,11 +324,13 @@ public class Panel extends Frame{
         
         
         //Station 5.1
+        g.drawString("Hailstone", width/2 -normalStation/2 - 415, height/2 -normalStation/2 + 300 + 40);
         g.setColor(Color.gray);
         g.fillOval(width/2 -normalStation/2 -500, height/2 -normalStation/2 +300, normalStation, normalStation);  
         g.setColor(Color.black);
         g.drawOval(width/2 -normalStation/2 -500, height/2 -normalStation/2 +300, normalStation, normalStation);         
         //Station 5.2
+        g.drawString("Windy Junction", width/2 -normalStation/2 - 530, height/2 -normalStation/2 + 300 + 40);
         g.setColor(Color.gray);
         g.fillOval(width/2 -normalStation/2 -400, height/2 -normalStation/2 +300, normalStation, normalStation);  
         g.setColor(Color.black);
