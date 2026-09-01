@@ -39,6 +39,45 @@ public class Routes {
         stops.add(Stops.Brookchester);
         return new Routes("Red Line", stops);
     }
+    public static Routes blueLine() {
+        ArrayList<Stops> stops = new ArrayList<>();
+        stops.add(Stops.SunsetPoint);
+        //stops.add(Stops.DaisyHill);
+        //stops.add(Stops.Reeds);
+        stops.add(Stops.PercyPort);
+        stops.add(Stops.Bakerville);
+        stops.add(Stops.Jubilee);
+        stops.add(Stops.Central);
+        //stops.add(Stops.SherieGrove);
+        //stops.add(Stops.TigerBay);
+        //stops.add(Stops.Troll-Upon-Bridge);
+        //stops.add(Stops.Celeste);
+        //stops.add(Stops.Hailstone);
+        //stops.add(Stops.WindyJunction);
+        return new Routes("Blue Line", stops);
+    }
+        public static Routes purpleLine() {
+        ArrayList<Stops> stops = new ArrayList<>();
+        //stops.add(Stops.TownHall);
+        //stops.add(Stops.Eagalston);
+        //stops.add(Stops.Rosebury);
+        stops.add(Stops.Central);
+        //stops.add(Stops.SherieGrove);
+        //stops.add(Stops.Prudence);
+        //stops.add(Stops.Tigerbay);
+        //stops.add(Stops.Troll-Upon-Bridge);
+        return new Routes("Purple Line", stops);
+    }
+    public static Routes greenLine() {
+        ArrayList<Stops> stops = new ArrayList<>();
+        stops.add(Stops.Central);
+        //stops.add(Stops.SherieGrove);
+        //stops.add(Stops.AndiePark);
+        //stops.add(Stops.MountPresley);
+
+        return new Routes("Green Line", stops);
+    }
+
 
     // Next stop walking from current towards destination, either direction. Null if arrived or not on route.
     public Stops getNextTowards(Stops current, Stops destination) {
