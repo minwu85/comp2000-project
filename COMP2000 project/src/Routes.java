@@ -25,6 +25,9 @@ public class Routes {
         //stops.add(Stops.blank);
         //stops.add(Stops.blank);
         //stops.add(Stops.template);
+        stops.add(Stops.TownHall);
+        stops.add(Stops.Eagleston);
+        stops.add(Stops.Rosebury);
         stops.add(Stops.Central);
         stops.add(Stops.Jubilee);
         stops.add(Stops.Bakerville);
