@@ -25,9 +25,6 @@ public class Routes {
     // The full red line, running past Percy Port to its actual end.
     public static Routes redLine() {
         ArrayList<Stops> stops = new ArrayList<>();
-        //stops.add(Stops.blank);
-        //stops.add(Stops.blank);
-        //stops.add(Stops.template);
         stops.add(Stops.TownHall);
         stops.add(Stops.Eagleston);
         stops.add(Stops.Rosebury);
@@ -42,30 +39,30 @@ public class Routes {
     public static Routes blueLine() {
         ArrayList<Stops> stops = new ArrayList<>();
         stops.add(Stops.SunsetPoint);
-        //stops.add(Stops.DaisyHill);
-        //stops.add(Stops.Reeds);
+        stops.add(Stops.DaisyHill);
+        stops.add(Stops.Reeds);
         stops.add(Stops.PercyPort);
         stops.add(Stops.Bakerville);
         stops.add(Stops.Jubilee);
         stops.add(Stops.Central);
-        //stops.add(Stops.SherieGrove);
-        //stops.add(Stops.TigerBay);
-        //stops.add(Stops.Troll-Upon-Bridge);
-        //stops.add(Stops.Celeste);
-        //stops.add(Stops.Hailstone);
-        //stops.add(Stops.WindyJunction);
+        stops.add(Stops.SherieGrove);
+        stops.add(Stops.TigerBay);
+        stops.add(Stops.TrollUponBridge);
+        stops.add(Stops.Celeste);
+        stops.add(Stops.Hailstone);
+        stops.add(Stops.WindyJunction);
         return new Routes("Blue Line", stops);
     }
         public static Routes purpleLine() {
         ArrayList<Stops> stops = new ArrayList<>();
-        //stops.add(Stops.TownHall);
-        //stops.add(Stops.Eagalston);
-        //stops.add(Stops.Rosebury);
+        stops.add(Stops.TownHall);
+        stops.add(Stops.Eagleston);
+        stops.add(Stops.Rosebury);
         stops.add(Stops.Central);
-        //stops.add(Stops.SherieGrove);
-        //stops.add(Stops.Prudence);
-        //stops.add(Stops.Tigerbay);
-        //stops.add(Stops.Troll-Upon-Bridge);
+        stops.add(Stops.SherieGrove);
+        stops.add(Stops.Prudence);
+        stops.add(Stops.TigerBay);
+        stops.add(Stops.TrollUponBridge);
         return new Routes("Purple Line", stops);
     }
     public static Routes greenLine() {
