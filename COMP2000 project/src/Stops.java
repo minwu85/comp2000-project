@@ -26,7 +26,20 @@ public class Stops {
     public static final Stops Brookchester = new Stops(1040, 560, "Brookchester", 50);
     
 
-    public static final Stops SunsetPoint = new Stops(360, 60, "Sunset Point", 50);
+    public static final Stops SunsetPoint = new Stops(1040, 60, "Sunset Point", 50);
+    public static final Stops DaisyHill = new Stops(1040, 160, "Daisy Hill", 50);
+    public static final Stops Reeds = new Stops(1040, 260, "Reeds", 50);
+    public static final Stops SherieGrove = new Stops(540, 360, "Sherie Grove", 50);
+    public static final Stops Prudence = new Stops(440, 360, "Prudence", 50);
+
+    public static final Stops MountPresley = new Stops(240, 160, "Mount Presley", 50);
+    public static final Stops AndiePark = new Stops(340, 260, "Andie Park", 50);
+
+    public static final Stops TigerBay = new Stops(440, 460, "Tiger Bay", 50);
+    public static final Stops TrollUponBridge = new Stops(440, 560, "Troll-upon-Bridge", 100);
+    public static final Stops Celeste = new Stops(340, 660, "Celeste", 50);
+    public static final Stops Hailstone = new Stops(240, 660, "Hailstone", 50);
+    public static final Stops WindyJunction = new Stops(140, 660, "Windy Junction", 50);
 
 
 
