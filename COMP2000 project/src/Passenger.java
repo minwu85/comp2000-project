@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Passenger {
     // Walks a passenger from start to end, one stop at a time along a route.
@@ -15,7 +16,18 @@ public class Passenger {
         this.start = start;
         this.end = end;
         this.curStop = start;
+        //int randomNum = (int) (Math.random() * (10 - 0 + 1)) + 0;
+
+        //Create random end and start point assignment 
+        //Addtional have a random is changing trains boolean value 
+        // if true give the passanger a new destitnation and set current stop to start location 
     }
+        public static Routes[] allRoutes(){
+        Routes[] totalRoutes = new Routes[5];
+        //totalRoutes.add(Routes.greenLine());
+        return totalRoutes;
+    }
+
 
     public boolean checkStop() {
         return curStop.equals(end);

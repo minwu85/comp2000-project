@@ -21,6 +21,7 @@ public class Routes {
         firstLine.add(Stops.PercyPort);
         return new Routes("Line1", firstLine);
     }
+    
 
     // The full red line, running past Percy Port to its actual end.
     public static Routes redLine() {
@@ -68,10 +69,9 @@ public class Routes {
     public static Routes greenLine() {
         ArrayList<Stops> stops = new ArrayList<>();
         stops.add(Stops.Central);
-        //stops.add(Stops.SherieGrove);
-        //stops.add(Stops.AndiePark);
-        //stops.add(Stops.MountPresley);
-
+        stops.add(Stops.SherieGrove);
+        stops.add(Stops.AndiePark);
+        stops.add(Stops.MountPresley);
         return new Routes("Green Line", stops);
     }
 

@@ -77,7 +77,7 @@ public class Vehicles {
     }
 
     // Translucent red rectangle, thin outline, labelled with the vehicle's name.
-    public void displayVehicle(Graphics g){
+    public void displayVehicle(Graphics g, int red, int green, int blue){
         Stops curStop = getCurStop();
         int x = curStop.x-width/2;
         int y = curStop.y-height/2;
@@ -85,7 +85,7 @@ public class Vehicles {
         Graphics2D g2d=(Graphics2D) g;
         g2d.setStroke(new BasicStroke(2));
 
-        g.setColor(new Color(255, 0, 0)); // solid red
+        g.setColor(new Color(red, green, blue)); // solid red
         g.fillRect(x, y, width, height);
         g.setColor(Color.black);
         g.drawRect(x, y, width, height);

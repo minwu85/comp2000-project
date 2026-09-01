@@ -21,6 +21,8 @@ public class Panel extends Frame{
     // Train running the red line, driven by a clock started with space.
     Train train1 = Train.t1();
     Train train2 = Train.t2();
+    Train train3 = Train.t3();
+    Train train4 = Train.t4();
     Time time;
     SidePanel sidePanel = new SidePanel();
 
@@ -68,12 +70,17 @@ public class Panel extends Frame{
         passengers.add(pass1);
 
         // Every 5th tick (1 real second) moves the train and checks boarding.
+        
         time = new Time(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e ) {
                 time.advance();
                 if (time.isOnSecond()) {
                     train1.moveVehicle();
+                    train2.moveVehicle();
+                    train3.moveVehicle();
+                    train4.moveVehicle();
                     pass1.checkBoarding(train1.getCurStop(), train1.onBoard);
+
                 }
                 repaint();
             }
@@ -339,7 +346,10 @@ public class Panel extends Frame{
         //count up to 16
 
         //Vehicles
-        train1.displayVehicle(g);
+        train1.displayVehicle(g, 255, 0, 0);
+        train2.displayVehicle(g, 0, 0, 255);
+        train3.displayVehicle(g, 255, 0, 255);
+        train4.displayVehicle(g, 0, 255, 0);
 
         // Done with the map layer.
         g.dispose();
@@ -347,6 +357,7 @@ public class Panel extends Frame{
         // Side panels: drawn on the untranslated graphics, so dragging the
         // map never moves them.
         sidePanel.display(screenGraphics, width, height, time, passengers.size(), train1);
+
     }
 
     public static void main(String[] args) {
