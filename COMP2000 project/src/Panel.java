@@ -20,7 +20,7 @@ public class Panel extends Frame{
 
     // Train running the red line, driven by a clock started with space.
     Train train1 = Train.t1();
-
+    Train train2 = Train.t2();
     Time time;
     SidePanel sidePanel = new SidePanel();
 

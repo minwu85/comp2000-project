@@ -33,6 +33,24 @@ public class Routes {
         stops.add(Stops.Brookchester);
         return new Routes("Red Line", stops);
     }
+    public static Routes blueLine() {
+        ArrayList<Stops> stops = new ArrayList<>();
+        stops.add(Stops.SunsetPoint);
+        //stops.add(Stops.DaisyHill);
+        //stops.add(Stops.Reeds);
+        stops.add(Stops.PercyPort);
+        stops.add(Stops.Bakerville);
+        stops.add(Stops.Jubilee);
+        stops.add(Stops.Central);
+        //stops.add(Stops.SherieGrove);
+        //stops.add(Stops.TigerBay);
+        //stops.add(Stops.Troll-Upon-Bridge);
+        //stops.add(Stops.Celeste);
+        //stops.add(Stops.Hailstone);
+        //stops.add(Stops.WindyJunction);
+
+        return new Routes("Blue Line", stops);
+    }
 
     // Next stop walking from current towards destination, either direction. Null if arrived or not on route.
     public Stops getNextTowards(Stops current, Stops destination) {

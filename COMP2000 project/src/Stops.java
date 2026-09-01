@@ -22,6 +22,10 @@ public class Stops {
     public static final Stops Merrybrook = new Stops(1040, 460, "Merrybrook", 50);
     public static final Stops Brookchester = new Stops(1040, 560, "Brookchester", 50);
 
+    public static final Stops SunsetPoint = new Stops(360, 60, "Sunset Point", 50);
+
+
+
     public String getName() {
         return name;
     }
