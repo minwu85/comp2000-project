@@ -63,19 +63,17 @@ Some ideas
 - student: oranger
 - work: ... (need to continue)
 - add an table at top of side paneel top of t1 display
+- but it can be really colour full - mes
     
 8. Exceptions - need to be added
 - 
 
 9. instrucstion guide 
-- open page 
+- open page/main page 
 - instrucstion page, explain what is the game for
 - link to side panel - which can be open later
-
-
-
-
-
+    - button display effect
+    
 
 
 **different type of accident for train delay**
