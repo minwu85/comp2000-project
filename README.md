@@ -30,7 +30,9 @@ graph TD
     SidePanel -->|reads clock + date| Time
     SidePanel -->|reads names from| Stops
 
- 
+    Time -->|wraps| Timer[javax.swing.Timer]:::ext
+    Time -->|formats sim time with| DateTime[java.time.LocalDateTime]:::ext
+
     classDef ext fill:#eee,stroke:#999,color:#333;
 ```
 
