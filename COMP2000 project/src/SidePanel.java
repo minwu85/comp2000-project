@@ -11,19 +11,31 @@ public class SidePanel {
     int buttonMargin = 20;
 
     int cardSpacing = 124;   // vertical gap from one train card to the next
-    int scrollbarWidth = 10; // width of the left-bar scrollbar
+    int maxVisibleCards = 3; // how many train cards fit before you have to scroll
+
+    // Scrollbar sizing: it grows a little when the mouse is near it.
+    int scrollbarWidth = 8;
+    int scrollbarWidthHot = 12;
+    int hoverMargin = 28;    // how far right of the bar still counts as "near the side"
 
     // Vertical scroll state for the train list.
     int scrollY = 0;         // pixels scrolled down
     int contentHeight = 0;   // total height of all cards (set while drawing)
-    int viewHeight = 0;      // visible height of the left bar (set while drawing)
+    int viewHeight = 0;      // visible height of the scrolling list (set while drawing)
+
+    // Hover / drag state that gives the scrollbar its "effects".
+    boolean pointerNearBar = false; // mouse is near the left bar -> show the scrollbar
+    boolean thumbHover = false;     // mouse is directly over the thumb
+    boolean thumbDragging = false;  // thumb is being dragged
 
     Color darkBar = new Color(45, 45, 45);
     Color panelBody = new Color(120, 120, 120);
     Color cardBackground = new Color(225, 225, 225);
     Color accentLine = new Color(30, 144, 255);
-    Color scrollTrack = new Color(90, 90, 90);
-    Color scrollThumb = new Color(205, 205, 205);
+    Color scrollTrack = new Color(80, 80, 80);
+    Color scrollThumbNormal = new Color(150, 150, 150);
+    Color scrollThumbHover = new Color(195, 195, 195);
+    Color scrollThumbDrag = new Color(230, 230, 230);
 
     public int getTopHeight() {
         return topHeight;
@@ -71,15 +83,18 @@ public class SidePanel {
 
     private void drawLeftBar(Graphics g, int panelHeight, Vehicles[] trains) {
         int barTop = topHeight;
-        viewHeight = panelHeight - barTop;
+        int fullHeight = panelHeight - barTop;
+
         contentHeight = trains.length * cardSpacing + 12;
+        // Only a few cards are visible at once; the rest are reached by scrolling.
+        viewHeight = Math.min(fullHeight, maxVisibleCards * cardSpacing + 12);
         scrollY = clampScroll(scrollY); // keep valid if the window resized
 
         g.setColor(panelBody);
-        g.fillRect(0, barTop, leftWidth, viewHeight);
+        g.fillRect(0, barTop, leftWidth, fullHeight);
 
-        // Clip to the left bar so scrolled cards never paint over the top bar
-        // or past the bottom of the window.
+        // Clip to the visible list area so scrolled cards never paint over the top
+        // bar or past the bottom of the list.
         Graphics clipped = g.create();
         clipped.clipRect(0, barTop, leftWidth, viewHeight);
         int cardY = barTop + 12 - scrollY;
@@ -88,6 +103,12 @@ public class SidePanel {
             cardY += cardSpacing;
         }
         clipped.dispose();
+
+        // Divider under the scrolling list.
+        if (viewHeight < fullHeight) {
+            g.setColor(scrollTrack);
+            g.fillRect(0, barTop + viewHeight, leftWidth, 2);
+        }
 
         drawScrollbar(g, barTop);
     }
@@ -110,14 +131,48 @@ public class SidePanel {
         return Math.max(30, Math.min(h, viewHeight));
     }
 
+    private int thumbY(int barTop) {
+        if (maxScroll() == 0) return barTop;
+        return barTop + (int) ((long) (viewHeight - thumbHeight()) * scrollY / maxScroll());
+    }
+
     // Wheel notch scrolling (positive amount = scroll down).
     public void scrollBy(int amount) {
         scrollY = clampScroll(scrollY + amount);
     }
 
-    // True if (x, y) is on the left-bar scrollbar.
+    // Called on every mouse move/drag so the scrollbar can show itself and light
+    // up. Returns true if something visible changed (so the caller repaints).
+    public boolean setPointer(int x, int y) {
+        boolean near = x <= leftWidth + hoverMargin && x >= 0 && y >= topHeight && y <= topHeight + viewHeight;
+
+        int tX = leftWidth - currentScrollbarWidth();
+        int tY = thumbY(topHeight);
+        boolean overThumb = near && x >= tX - hoverMargin && y >= tY && y <= tY + thumbHeight();
+
+        boolean changed = (near != pointerNearBar) || (overThumb != thumbHover);
+        pointerNearBar = near;
+        thumbHover = overThumb;
+        return changed;
+    }
+
+    public void setThumbDragging(boolean dragging) {
+        thumbDragging = dragging;
+    }
+
+    private boolean scrollbarShowing() {
+        return maxScroll() > 0 && (pointerNearBar || thumbHover || thumbDragging);
+    }
+
+    private int currentScrollbarWidth() {
+        return (thumbHover || thumbDragging) ? scrollbarWidthHot : scrollbarWidth;
+    }
+
+    // True if (x, y) is on (or right next to) the scrollbar, so a press grabs the thumb.
     public boolean isOverScrollbar(int x, int y) {
-        return x >= leftWidth - scrollbarWidth && x <= leftWidth && y >= topHeight;
+        if (maxScroll() == 0) return false;
+        return x >= leftWidth - scrollbarWidthHot - 4 && x <= leftWidth + 4
+                && y >= topHeight && y <= topHeight + viewHeight;
     }
 
     // Jump the scroll so the thumb centres on mouseY (used while dragging the thumb).
@@ -131,20 +186,30 @@ public class SidePanel {
         scrollY = clampScroll((int) ((long) rel * maxScroll() / travel));
     }
 
+    // Two grey rectangles (track + thumb). Only drawn while the mouse is near the
+    // side; the thumb brightens on hover and brightens more while dragged.
     private void drawScrollbar(Graphics g, int barTop) {
-        if (maxScroll() == 0) {
-            return; // everything fits, no scrollbar needed
+        if (!scrollbarShowing()) {
+            return;
         }
-        int trackX = leftWidth - scrollbarWidth;
+        int barW = currentScrollbarWidth();
+        int trackX = leftWidth - barW;
+
         g.setColor(scrollTrack);
-        g.fillRect(trackX, barTop, scrollbarWidth, viewHeight);
+        g.fillRect(trackX, barTop, barW, viewHeight);
 
         int thumbH = thumbHeight();
-        int thumbY = barTop + (int) ((long) (viewHeight - thumbH) * scrollY / maxScroll());
-        g.setColor(scrollThumb);
-        g.fillRect(trackX, thumbY, scrollbarWidth, thumbH);
+        int ty = thumbY(barTop);
+        if (thumbDragging) {
+            g.setColor(scrollThumbDrag);
+        } else if (thumbHover) {
+            g.setColor(scrollThumbHover);
+        } else {
+            g.setColor(scrollThumbNormal);
+        }
+        g.fillRect(trackX, ty, barW, thumbH);
         g.setColor(Color.black);
-        g.drawRect(trackX, thumbY, scrollbarWidth - 1, thumbH - 1);
+        g.drawRect(trackX, ty, barW - 1, thumbH - 1);
     }
 
     // Card: a mini version of the on-map train icon, next to its info.

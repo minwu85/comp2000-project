@@ -107,6 +107,7 @@ public class Panel extends Frame{
             public void mousePressed(MouseEvent e) {
                 if (sidePanel.isOverScrollbar(e.getX(), e.getY())) {
                     draggingScrollbar = true;
+                    sidePanel.setThumbDragging(true);
                     sidePanel.dragScrollTo(e.getY());
                     repaint();
                 } else if (!sidePanel.isOverPanel(e.getX(), e.getY(), width, height)) {
@@ -119,11 +120,26 @@ public class Panel extends Frame{
             public void mouseReleased(MouseEvent e) {
                 dragging = false;
                 draggingScrollbar = false;
+                sidePanel.setThumbDragging(false);
+                repaint();
             }
 
             public void mouseClicked(MouseEvent e) {
                 if (sidePanel.isButtonClicked(e.getX(), e.getY(), width)) {
                     time.toggle();
+                    repaint();
+                }
+            }
+
+            public void mouseMoved(MouseEvent e) {
+                // Show / light up the scrollbar when the mouse is near the side.
+                if (sidePanel.setPointer(e.getX(), e.getY())) {
+                    repaint();
+                }
+            }
+
+            public void mouseExited(MouseEvent e) {
+                if (sidePanel.setPointer(-100, -100)) {
                     repaint();
                 }
             }
