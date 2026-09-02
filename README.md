@@ -2,26 +2,57 @@
 
 The team name: OOPP The GOOP
 
-The team members: Ashton, Luke, Daniel, Min, Amanda
+The team members: Ashton, Luke, Daniel, Minying, Amanda
 
 ## Project Goal
+Project goal is to have train simulation 
 
+## How the classes link
 
+```mermaid
+graph TD
+    Frame[java.awt.Frame]:::ext
+    Panel -->|extends| Frame
+    Panel -->|creates & draws| SidePanel
+    Panel -->|creates 4x| Train
+    Panel -->|creates| Passenger
+    Panel -->|creates| Time
+
+    Train -->|extends| Vehicles
+    Vehicles -->|has a| Routes
+    Vehicles -->|holds ArrayList of| Passenger
+    Routes -->|has a list of| Stops
+
+    Passenger -->|walks along| Routes
+    Passenger -->|current / start / end| Stops
+
+    SidePanel -->|reads| Vehicles
+    SidePanel -->|reads| Time
+    SidePanel -->|reads names from| Stops
+
+    Time -->|wraps| Timer[javax.swing.Timer]:::ext
+
+    classDef ext fill:#eee,stroke:#999,color:#333;
+```
 
 
 
 ## FlowChart 
 
-explain each Class do
+
+This explain each Class do
+
 
 Plain-text version:
 
 ```
 Panel (the window + game loop)
- ├─ SidePanel        draws the top bar (clock/pause) and 4 train cards
- ├─ Time             ticking clock, drives every update
- ├─ Passenger        a commuter moving stop to stop
+ ├─ SidePanel: draws the top bar (clock/pause) and 4 train cards
+ ├─ Time: ticking clock, drives every update
+ ├─ Passenger: a commuter moving stop to stop
  └─ Train  ── extends ──▶ Vehicles
-                          ├─ Routes   ordered list of Stops for one line
-                          │   └─ Stops   a single station (x, y, name)
+                          ├─ Routes: ordered list of Stops for one line
+                          │   └─ Stops: a single station (x, y, name)
                           └─ ArrayList<Passenger>  who is on board
+
+
