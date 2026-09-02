@@ -25,7 +25,7 @@ public class Panel extends Frame{
     Train train4 = Train.t4();
     Time time;
     SidePanel sidePanel = new SidePanel();
-
+    
     Passenger pass1 = Passenger.pass1();
     ArrayList<Passenger> passengers = new ArrayList<>();
 
@@ -80,6 +80,9 @@ public class Panel extends Frame{
                     train3.moveVehicle();
                     train4.moveVehicle();
                     pass1.checkBoarding(train1.getCurStop(), train1.onBoard);
+                    pass1.checkBoarding(train2.getCurStop(), train2.onBoard);
+                    pass1.checkBoarding(train3.getCurStop(), train3.onBoard);
+                    pass1.checkBoarding(train4.getCurStop(), train4.onBoard);
 
                 }
                 repaint();

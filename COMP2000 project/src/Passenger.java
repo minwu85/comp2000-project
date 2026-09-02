@@ -11,21 +11,46 @@ public class Passenger {
     private Stops curStop;
     private String message;
 
-    public Passenger(String name, Stops start, Stops end) {
+    public Passenger(String name) {
+        
         this.name = name;
-        this.start = start;
-        this.end = end;
+        this.start = startPoint(allRoutes()).get(0);
+        this.end = startPoint(allRoutes()).get(1);;
         this.curStop = start;
-        //int randomNum = (int) (Math.random() * (10 - 0 + 1)) + 0;
+
 
         //Create random end and start point assignment 
         //Addtional have a random is changing trains boolean value 
         // if true give the passanger a new destitnation and set current stop to start location 
     }
-        public static Routes[] allRoutes(){
-        Routes[] totalRoutes = new Routes[5];
-        //totalRoutes.add(Routes.greenLine());
+        public static ArrayList<Routes> allRoutes(){
+        // adds all the trainlines into one array for easy accsess
+        ArrayList<Routes> totalRoutes = new ArrayList<>();
+        totalRoutes.add(Routes.redLine());
+        totalRoutes.add(Routes.blueLine());
+        totalRoutes.add(Routes.purpleLine());
+        totalRoutes.add(Routes.greenLine());
         return totalRoutes;
+    }
+    public static ArrayList<Stops> startPoint(ArrayList<Routes> route){
+        // Returns a start end stop through an arraylist with pos 0 being start 
+        // and pos 1 being end. using random math for spawn locations 
+        ArrayList<Stops> startEnd = new ArrayList<>();
+        Stops startpoint;
+        Stops endpoint;
+        int randomRoute = (int) (Math.random() * (route.size() - 1)) ;
+        Routes routes;
+        // keeps start and stop on the same route to avoid swaping
+        routes = route.get(randomRoute); 
+        int randomStart = (int) (Math.random() * (routes.stations.size() - 1)) + 0;
+        int randomEnd = (int) (Math.random() * (routes.stations.size() -  1)) + 0;
+
+        startpoint = routes.stations.get(randomStart);
+        endpoint = routes.stations.get(randomEnd);
+        startEnd.add(startpoint);
+        startEnd.add(endpoint);
+        return startEnd;
+
     }
 
 
@@ -76,7 +101,7 @@ public class Passenger {
 
     // Example passenger commuting between Jubilee and Percy Port.
     public static Passenger pass1() {
-        return new Passenger("pass1", Stops.Jubilee, Stops.PercyPort);
+        return new Passenger("pass1");
     }
 
     // Boards this passenger when curStop matches start, disembarks at end.

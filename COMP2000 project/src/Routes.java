@@ -20,6 +20,7 @@ public class Routes {
         firstLine.add(Stops.Bakerville);
         firstLine.add(Stops.PercyPort);
         return new Routes("Line1", firstLine);
+
     }
     
 
@@ -47,6 +48,7 @@ public class Routes {
         stops.add(Stops.Jubilee);
         stops.add(Stops.Central);
         stops.add(Stops.SherieGrove);
+        stops.add(Stops.Prudence);
         stops.add(Stops.TigerBay);
         stops.add(Stops.TrollUponBridge);
         stops.add(Stops.Celeste);
