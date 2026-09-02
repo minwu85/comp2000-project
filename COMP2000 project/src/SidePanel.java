@@ -34,11 +34,12 @@ public class SidePanel {
         return false;
     }
 
-    // Draws the top bar (clock + pause/continue) and the left bar (train card).
+    // Draws the top bar (clock + pause/continue) and the left bar (one card per train).
     // Always called on an untranslated Graphics, so it stays fixed while the map is dragged.
-    public void display(Graphics g, int panelWidth, int panelHeight, Time time, int totalPassengers, Vehicles train) {
+    // Takes Vehicles[] (not Train[]) so any vehicle subtype can be shown here.
+    public void display(Graphics g, int panelWidth, int panelHeight, Time time, int totalPassengers, Vehicles[] trains) {
         drawTopBar(g, panelWidth, time);
-        drawLeftBar(g, panelHeight, totalPassengers, train);
+        drawLeftBar(g, panelHeight, totalPassengers, trains);
     }
 
     private void drawTopBar(Graphics g, int panelWidth, Time time) {
@@ -54,56 +55,66 @@ public class SidePanel {
         drawPauseButton(g, panelWidth, time.isRunning());
     }
 
-    private void drawLeftBar(Graphics g, int panelHeight, int totalPassengers, Vehicles train) {
+    private void drawLeftBar(Graphics g, int panelHeight, int totalPassengers, Vehicles[] trains) {
         g.setColor(panelBody);
         g.fillRect(0, topHeight, leftWidth, panelHeight - topHeight);
-        /* no need, which can be replace with other infor
-        g.setColor(Color.white);
-        g.setFont(new Font("SansSerif", Font.BOLD, 16));
-        g.drawString("Passengers: " + totalPassengers, 20, topHeight + 30);
-        */
-        drawTrainCard(g, topHeight + 45, train);
+
+        // One compact card per train (T1..T4), stacked down the left bar.
+        int cardY = topHeight + 12;
+        for (Vehicles train : trains) {
+            drawTrainCard(g, cardY, train);
+            cardY += 124;
+        }
     }
 
     // Card: a mini version of the on-map train icon, next to its info.
     private void drawTrainCard(Graphics g, int cardY, Vehicles train) {
         int cardX = 10;
         int cardWidth = leftWidth - 20;
-        int cardHeight = 150;
+        int cardHeight = 112;
 
         g.setColor(cardBackground);
         g.fillRect(cardX, cardY, cardWidth, cardHeight);
         g.setColor(Color.black);
         g.drawRect(cardX, cardY, cardWidth, cardHeight);
 
-        drawTrainIcon(g, cardX + 12, cardY + 12, 60, train.getName());
+        drawTrainIcon(g, cardX + 10, cardY + 10, 46, train.getName(), lineColour(train.getName()));
 
-        int textX = cardX + 12 + 60 + 12;
-        int textY = cardY + 26;
+        int textX = cardX + 10 + 46 + 10;
+        int textY = cardY + 20;
 
         g.setColor(Color.black);
-        g.setFont(new Font("SansSerif", Font.BOLD, 14));
+        g.setFont(new Font("SansSerif", Font.BOLD, 13));
         g.drawString(train.getName() + " (" + train.route.name + ")", textX, textY);
 
         g.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        g.drawString("\u2022 On train: " + train.getPassengers().size(), textX, textY + 22);
-        g.drawString("\u2022 Current: " + train.getCurStop().getName(), textX, textY + 40);
+        g.drawString("\u2022 On train: " + train.getPassengers().size(), textX, textY + 20);
+        g.drawString("\u2022 Current: " + train.getCurStop().getName(), textX, textY + 38);
 
         Stops next = train.getNextStop();
         String nextName = (next == null) ? "-" : next.getName();
-        g.drawString("\u2022 Next: " + nextName, textX, textY + 58);
+        g.drawString("\u2022 Next: " + nextName, textX, textY + 56);
     }
 
-    // Same red/black look as the train on the map, just small and labelled.
-    private void drawTrainIcon(Graphics g, int x, int y, int size, String label) {
-        g.setColor(new Color(255, 0, 0));
+    // Same box/label look as the train on the map, just small and in its line colour.
+    private void drawTrainIcon(Graphics g, int x, int y, int size, String label, Color colour) {
+        g.setColor(colour);
         g.fillRect(x, y, size, size);
         g.setColor(Color.black);
         g.drawRect(x, y, size, size);
 
         g.setColor(Color.white);
-        g.setFont(new Font("SansSerif", Font.BOLD, 14));
-        g.drawString(label, x + 10, y + size / 2 + 5);
+        g.setFont(new Font("SansSerif", Font.BOLD, 13));
+        g.drawString(label, x + 8, y + size / 2 + 5);
+    }
+
+    // Matches each train to the colour its line is drawn with on the map.
+    private Color lineColour(String trainName) {
+        if (trainName.equals("T1")) return new Color(255, 0, 0);   // Red Line
+        if (trainName.equals("T2")) return new Color(0, 0, 255);   // Blue Line
+        if (trainName.equals("T3")) return new Color(191, 0, 255); // Purple Line
+        if (trainName.equals("T4")) return new Color(0, 160, 0);   // Green Line
+        return Color.gray;
     }
 
     // True if (mouseX, mouseY) is inside the pause/continue button.

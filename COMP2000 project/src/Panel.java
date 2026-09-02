@@ -5,7 +5,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -98,8 +97,10 @@ public class Panel extends Frame{
             }
         });
 
+        // One handler for both click and drag: MouseAdapter already covers
+        // MouseListener + MouseMotionListener, so a single object is enough.
         // Clicking the button toggles the clock; dragging the map (not the side panels) pans it.
-        addMouseListener(new MouseAdapter() {
+        MouseAdapter mouseHandler = new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 if (!sidePanel.isOverPanel(e.getX(), e.getY(), width, height)) {
                     dragStartX = e.getX() - panOffsetX;
@@ -118,9 +119,7 @@ public class Panel extends Frame{
                     repaint();
                 }
             }
-        });
 
-        addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent e) {
                 if (dragging) {
                     panOffsetX = e.getX() - dragStartX;
@@ -128,7 +127,9 @@ public class Panel extends Frame{
                     repaint();
                 }
             }
-        });
+        };
+        addMouseListener(mouseHandler);
+        addMouseMotionListener(mouseHandler);
     }
 
     // Draws to an off-screen image first, then blits it in one go, so the
@@ -359,7 +360,8 @@ public class Panel extends Frame{
 
         // Side panels: drawn on the untranslated graphics, so dragging the
         // map never moves them.
-        sidePanel.display(screenGraphics, width, height, time, passengers.size(), train1);
+        sidePanel.display(screenGraphics, width, height, time, passengers.size(),
+                new Vehicles[]{train1, train2, train3, train4});
 
     }
 
