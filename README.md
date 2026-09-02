@@ -2,7 +2,7 @@
 
 The team name: OOPP The GOOP
 
-The team members: Ashton, Luke, Daniel, Minying, Amanda
+The team members: Ashton, Luke, Daniel, Min, Amanda
 
 ## Project Goal
 Project goal is to have train simulation 
@@ -27,11 +27,10 @@ graph TD
     Passenger -->|current / start / end| Stops
 
     SidePanel -->|reads| Vehicles
-    SidePanel -->|reads clock + date| Time
+    SidePanel -->|reads| Time
     SidePanel -->|reads names from| Stops
 
     Time -->|wraps| Timer[javax.swing.Timer]:::ext
-    Time -->|formats sim time with| DateTime[java.time.LocalDateTime]:::ext
 
     classDef ext fill:#eee,stroke:#999,color:#333;
 ```
@@ -47,5 +46,3 @@ This explain each Class do
 Plain-text version:
 
 ```
-
-
