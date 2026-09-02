@@ -27,11 +27,10 @@ graph TD
     Passenger -->|current / start / end| Stops
 
     SidePanel -->|reads| Vehicles
-    SidePanel -->|reads| Time
+    SidePanel -->|reads clock + date| Time
     SidePanel -->|reads names from| Stops
 
-    Time -->|wraps| Timer[javax.swing.Timer]:::ext
-
+ 
     classDef ext fill:#eee,stroke:#999,color:#333;
 ```
 
@@ -47,8 +46,10 @@ Plain-text version:
 
 ```
 Panel (the window + game loop)
- ├─ SidePanel: draws the top bar (clock/pause) and 4 train cards
- ├─ Time: ticking clock, drives every update
+ ├─ SidePanel: draws the top bar (date + AM/PM clock + pause) and a
+ │             scrollable list of train cards (mouse wheel or drag the scrollbar)
+ ├─ Time: ticking clock (1 real sec = 5 ticks = 1 sim sec), drives every update,
+ │        and reports the simulated date + 12-hour clock text
  ├─ Passenger: a commuter moving stop to stop
  └─ Train  ── extends ──▶ Vehicles
                           ├─ Routes: ordered list of Stops for one line

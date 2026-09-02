@@ -73,7 +73,11 @@ Some ideas
 - instrucstion page, explain what is the game for
 - link to side panel - which can be open later
     - button display effect
-    
+
+10. stop clickable
+- let stop to be click in the later 
+- display num passage, next train infor 
+ 
 
 
 **different type of accident for train delay**

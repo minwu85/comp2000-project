@@ -10,10 +10,20 @@ public class SidePanel {
     int buttonSize = 40;
     int buttonMargin = 20;
 
+    int cardSpacing = 124;   // vertical gap from one train card to the next
+    int scrollbarWidth = 10; // width of the left-bar scrollbar
+
+    // Vertical scroll state for the train list.
+    int scrollY = 0;         // pixels scrolled down
+    int contentHeight = 0;   // total height of all cards (set while drawing)
+    int viewHeight = 0;      // visible height of the left bar (set while drawing)
+
     Color darkBar = new Color(45, 45, 45);
     Color panelBody = new Color(120, 120, 120);
     Color cardBackground = new Color(225, 225, 225);
     Color accentLine = new Color(30, 144, 255);
+    Color scrollTrack = new Color(90, 90, 90);
+    Color scrollThumb = new Color(205, 205, 205);
 
     public int getTopHeight() {
         return topHeight;
@@ -34,12 +44,12 @@ public class SidePanel {
         return false;
     }
 
-    // Draws the top bar (clock + pause/continue) and the left bar (one card per train).
+    // Draws the top bar (date + clock + pause/continue) and the left bar (one card per train).
     // Always called on an untranslated Graphics, so it stays fixed while the map is dragged.
     // Takes Vehicles[] (not Train[]) so any vehicle subtype can be shown here.
-    public void display(Graphics g, int panelWidth, int panelHeight, Time time, int totalPassengers, Vehicles[] trains) {
+    public void display(Graphics g, int panelWidth, int panelHeight, Time time, Vehicles[] trains) {
         drawTopBar(g, panelWidth, time);
-        drawLeftBar(g, panelHeight, totalPassengers, trains);
+        drawLeftBar(g, panelHeight, trains);
     }
 
     private void drawTopBar(Graphics g, int panelWidth, Time time) {
@@ -47,24 +57,94 @@ public class SidePanel {
         g.fillRect(0, 0, panelWidth, topHeight);
         g.setColor(accentLine);
         g.fillRect(0, topHeight - 3, panelWidth, 3);
-       
+
         g.setColor(Color.white);
-        g.setFont(new Font("Times New Roman", Font.BOLD, 28));
-        g.drawString(time.getClockText(), 30, 40);
-        
+        g.setFont(new Font("Times New Roman", Font.BOLD, 26));
+        g.drawString(time.getClockText(), 30, 38);
+
+        // Date sits to the right of the clock, in a smaller font.
+        g.setFont(new Font("SansSerif", Font.PLAIN, 15));
+        g.drawString(time.getDateText(), 250, 38);
+
         drawPauseButton(g, panelWidth, time.isRunning());
     }
 
-    private void drawLeftBar(Graphics g, int panelHeight, int totalPassengers, Vehicles[] trains) {
-        g.setColor(panelBody);
-        g.fillRect(0, topHeight, leftWidth, panelHeight - topHeight);
+    private void drawLeftBar(Graphics g, int panelHeight, Vehicles[] trains) {
+        int barTop = topHeight;
+        viewHeight = panelHeight - barTop;
+        contentHeight = trains.length * cardSpacing + 12;
+        scrollY = clampScroll(scrollY); // keep valid if the window resized
 
-        // One compact card per train (T1..T4), stacked down the left bar.
-        int cardY = topHeight + 12;
+        g.setColor(panelBody);
+        g.fillRect(0, barTop, leftWidth, viewHeight);
+
+        // Clip to the left bar so scrolled cards never paint over the top bar
+        // or past the bottom of the window.
+        Graphics clipped = g.create();
+        clipped.clipRect(0, barTop, leftWidth, viewHeight);
+        int cardY = barTop + 12 - scrollY;
         for (Vehicles train : trains) {
-            drawTrainCard(g, cardY, train);
-            cardY += 124;
+            drawTrainCard(clipped, cardY, train);
+            cardY += cardSpacing;
         }
+        clipped.dispose();
+
+        drawScrollbar(g, barTop);
+    }
+
+    // --- Scrolling ------------------------------------------------------------
+
+    private int maxScroll() {
+        return Math.max(0, contentHeight - viewHeight);
+    }
+
+    private int clampScroll(int value) {
+        if (value < 0) return 0;
+        if (value > maxScroll()) return maxScroll();
+        return value;
+    }
+
+    private int thumbHeight() {
+        if (contentHeight <= 0) return 30;
+        int h = (int) ((long) viewHeight * viewHeight / contentHeight);
+        return Math.max(30, Math.min(h, viewHeight));
+    }
+
+    // Wheel notch scrolling (positive amount = scroll down).
+    public void scrollBy(int amount) {
+        scrollY = clampScroll(scrollY + amount);
+    }
+
+    // True if (x, y) is on the left-bar scrollbar.
+    public boolean isOverScrollbar(int x, int y) {
+        return x >= leftWidth - scrollbarWidth && x <= leftWidth && y >= topHeight;
+    }
+
+    // Jump the scroll so the thumb centres on mouseY (used while dragging the thumb).
+    public void dragScrollTo(int mouseY) {
+        int travel = viewHeight - thumbHeight();
+        if (travel <= 0) {
+            scrollY = 0;
+            return;
+        }
+        int rel = mouseY - topHeight - thumbHeight() / 2;
+        scrollY = clampScroll((int) ((long) rel * maxScroll() / travel));
+    }
+
+    private void drawScrollbar(Graphics g, int barTop) {
+        if (maxScroll() == 0) {
+            return; // everything fits, no scrollbar needed
+        }
+        int trackX = leftWidth - scrollbarWidth;
+        g.setColor(scrollTrack);
+        g.fillRect(trackX, barTop, scrollbarWidth, viewHeight);
+
+        int thumbH = thumbHeight();
+        int thumbY = barTop + (int) ((long) (viewHeight - thumbH) * scrollY / maxScroll());
+        g.setColor(scrollThumb);
+        g.fillRect(trackX, thumbY, scrollbarWidth, thumbH);
+        g.setColor(Color.black);
+        g.drawRect(trackX, thumbY, scrollbarWidth - 1, thumbH - 1);
     }
 
     // Card: a mini version of the on-map train icon, next to its info.

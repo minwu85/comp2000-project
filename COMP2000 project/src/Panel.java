@@ -5,6 +5,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ public class Panel extends Frame{
     int dragStartX;
     int dragStartY;
     boolean dragging = false;
+    boolean draggingScrollbar = false; // true while the left-bar scrollbar thumb is held
 
 
     public Panel() {
@@ -97,12 +99,17 @@ public class Panel extends Frame{
             }
         });
 
-        // One handler for both click and drag: MouseAdapter already covers
-        // MouseListener + MouseMotionListener, so a single object is enough.
-        // Clicking the button toggles the clock; dragging the map (not the side panels) pans it.
+        // One handler for click, drag and wheel: MouseAdapter already covers
+        // MouseListener + MouseMotionListener + MouseWheelListener, so one object is enough.
+        // Clicking the button toggles the clock; dragging the map (not the side panels) pans it;
+        // the wheel and the left-bar scrollbar scroll the train list.
         MouseAdapter mouseHandler = new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
-                if (!sidePanel.isOverPanel(e.getX(), e.getY(), width, height)) {
+                if (sidePanel.isOverScrollbar(e.getX(), e.getY())) {
+                    draggingScrollbar = true;
+                    sidePanel.dragScrollTo(e.getY());
+                    repaint();
+                } else if (!sidePanel.isOverPanel(e.getX(), e.getY(), width, height)) {
                     dragStartX = e.getX() - panOffsetX;
                     dragStartY = e.getY() - panOffsetY;
                     dragging = true;
@@ -111,6 +118,7 @@ public class Panel extends Frame{
 
             public void mouseReleased(MouseEvent e) {
                 dragging = false;
+                draggingScrollbar = false;
             }
 
             public void mouseClicked(MouseEvent e) {
@@ -121,15 +129,27 @@ public class Panel extends Frame{
             }
 
             public void mouseDragged(MouseEvent e) {
-                if (dragging) {
+                if (draggingScrollbar) {
+                    sidePanel.dragScrollTo(e.getY());
+                    repaint();
+                } else if (dragging) {
                     panOffsetX = e.getX() - dragStartX;
                     panOffsetY = e.getY() - dragStartY;
+                    repaint();
+                }
+            }
+
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                // Scroll the train list when the pointer is over the left bar.
+                if (e.getX() < sidePanel.getLeftWidth()) {
+                    sidePanel.scrollBy(e.getWheelRotation() * 40);
                     repaint();
                 }
             }
         };
         addMouseListener(mouseHandler);
         addMouseMotionListener(mouseHandler);
+        addMouseWheelListener(mouseHandler);
     }
 
     // Draws to an off-screen image first, then blits it in one go, so the
@@ -360,7 +380,7 @@ public class Panel extends Frame{
 
         // Side panels: drawn on the untranslated graphics, so dragging the
         // map never moves them.
-        sidePanel.display(screenGraphics, width, height, time, passengers.size(),
+        sidePanel.display(screenGraphics, width, height, time,
                 new Vehicles[]{train1, train2, train3, train4});
 
     }
