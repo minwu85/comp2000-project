@@ -90,6 +90,6 @@ Some ideas
 
 1. looks of 
 - passager (probably change another way to display) - done
-- train (image?), sidepanel
+- train (image?), sidepanel 
 2. bus (?can be added once train broke)
 3. Weather which link to accident section
