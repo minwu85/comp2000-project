@@ -11,15 +11,15 @@ import java.awt.Graphics;
 public class SidePanel {
 
     int topHeight = 70;
-    int leftWidth = 240;   // width of the SideTrain panel
+    int leftWidth = 320;   // width of the SideTrain panel
     int tableWidth = 960;  // right edge of the SideTable panel when it is open
 
     int pauseSize = 56;
     int pauseMargin = 20;
 
-    // Tab sizing: short by default, wider while the mouse hovers over it.
-    int tabShortWidth = 46;
-    int tabFullWidth = 170;
+    // Tab sizing: snug by default, a little wider while the mouse hovers over it.
+    int tabShortWidth = 130;
+    int tabFullWidth = 165;
     int tabHeight = 40;
     int tabPoint = 14;   // length of the pointed tip
     int tabGap = 10;     // vertical gap between the two tabs
@@ -75,10 +75,10 @@ public class SidePanel {
         drawTopBar(g, panelWidth, time);
 
         if (tableOpen) {
-            sideTrain.draw(g, panelHeight, trains, true); // dark grey stub
+            sideTrain.draw(g, panelHeight, trains, true, time); // dark grey stub
             sideTable.draw(g, panelHeight, trains, time);
         } else {
-            sideTrain.draw(g, panelHeight, trains, false);
+            sideTrain.draw(g, panelHeight, trains, false, time);
         }
 
         drawTabs(g);
@@ -179,12 +179,13 @@ public class SidePanel {
 
     private void drawTabs(Graphics g) {
         int x = tabX();
-        drawTab(g, x, trainTabY(), "Cur", "Train curr", !tableOpen, trainTabHover);
-        drawTab(g, x, tableTabY(), "Table", "Train time table", tableOpen, tableTabHover);
+        drawTab(g, x, trainTabY(), "Train current", !tableOpen, trainTabHover);
+        drawTab(g, x, tableTabY(), "Train table", tableOpen, tableTabHover);
     }
 
-    private void drawTab(Graphics g, int x, int y, String shortLabel, String fullLabel,
-            boolean active, boolean hover) {
+    // Same label at both sizes - only the tab's fill colour (active/inactive)
+    // and its width (hovered/not) change; the label text and position stay put.
+    private void drawTab(Graphics g, int x, int y, String label, boolean active, boolean hover) {
         int w = tabWidth(hover);
         int[] xs = {x, x + w, x + w + tabPoint, x + w, x};
         int[] ys = {y, y, y + tabHeight / 2, y + tabHeight, y + tabHeight};
@@ -197,13 +198,6 @@ public class SidePanel {
         g.fillPolygon(xs, ys, 5);
         g.setColor(Color.black);
         g.drawPolygon(xs, ys, 5);
-
-        String label;
-        if (hover) {
-            label = fullLabel;
-        } else {
-            label = shortLabel;
-        }
 
         if (active) {
             g.setColor(Color.black);

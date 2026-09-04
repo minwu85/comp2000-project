@@ -3,7 +3,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 
 // The wide panel that opens on top of the map to show a simple timetable:
-// one card per train with its line, current stop, next stop and rough ETAs,
+// one row per train with its line, current stop, next stop and rough ETAs,
 // plus a footer naming the busiest train. Times come from the Time class.
 public class SideTable {
 
@@ -13,14 +13,29 @@ public class SideTable {
 
     private static final int MINUTES_BETWEEN_STOPS = 3;
 
-    Color body = new Color(222, 224, 227);
-    Color cardFill = new Color(248, 248, 248);
-    Color cardBorder = new Color(90, 90, 90);
+    Color body = new Color(220, 220, 220);
+    Color headerRow = new Color(190, 190, 190);
+    Color gridLine = new Color(170, 170, 170);
+
+    // Column x positions (absolute).
+    private final int colTrain;
+    private final int colLine;
+    private final int colCurrent;
+    private final int colTime;
+    private final int colNext;
+    private final int colEta;
 
     public SideTable(int leftX, int top, int rightX) {
         this.leftX = leftX;
         this.top = top;
         this.rightX = rightX;
+
+        this.colTrain = leftX + 20;
+        this.colLine = leftX + 80;
+        this.colCurrent = leftX + 170;
+        this.colTime = leftX + 330;
+        this.colNext = leftX + 400;
+        this.colEta = leftX + 520;
     }
 
     public void draw(Graphics g, int panelHeight, Vehicles[] trains, Time time) {
@@ -29,39 +44,48 @@ public class SideTable {
 
         g.setColor(body);
         g.fillRect(leftX, top, w, h);
+        g.setColor(Color.black);
+        g.drawRect(leftX, top, w, h);
 
-        g.setColor(new Color(30, 30, 30));
-        g.setFont(new Font("SansSerif", Font.BOLD, 22));
-        g.drawString("Train Time Table", leftX + 24, top + 38);
+        g.setFont(new Font("SansSerif", Font.BOLD, 20));
+        g.drawString("Train Time Table", leftX + 20, top + 34);
 
-        g.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        g.setFont(new Font("SansSerif", Font.PLAIN, 11));
         g.drawString("Estimated times, about " + MINUTES_BETWEEN_STOPS
-                + " min between stops. Clock: " + time.getClockText(), leftX + 24, top + 58);
+                + " min between stops. Clock: " + time.getClockText(), leftX + 20, top + 54);
 
-        int cardX = leftX + 20;
-        int cardWidth = w - 40;
-        int cardHeight = 70;
-        int cardGap = 14;
-        int cardY = top + 80;
+        // Header row.
+        int headerY = top + 78;
+        g.setColor(headerRow);
+        g.fillRect(leftX, headerY - 16, w, 24);
+        g.setColor(Color.black);
+        g.setFont(new Font("SansSerif", Font.BOLD, 12));
+        g.drawString("TRAIN", colTrain, headerY);
+        g.drawString("LINE", colLine, headerY);
+        g.drawString("CURRENT STOP", colCurrent, headerY);
+        g.drawString("TIME", colTime, headerY);
+        g.drawString("NEXT STOP", colNext, headerY);
+        g.drawString("ETA", colEta, headerY);
 
+        // One row per train.
+        int rowY = headerY + 40;
+        int rowStep = 46;
         for (Vehicles train : trains) {
-            drawTrainCard(g, cardX, cardY, cardWidth, cardHeight, train, time);
-            cardY += cardHeight + cardGap;
+            drawRow(g, rowY, train, time);
+            g.setColor(gridLine);
+            g.drawLine(leftX + 12, rowY + 14, rightX - 12, rowY + 14);
+            rowY += rowStep;
         }
 
-        drawBusiestFooter(g, cardX, cardY + 6, trains);
+        drawBusiestFooter(g, leftX + 20, rowY + 10, trains);
     }
 
-    private void drawTrainCard(Graphics g, int x, int y, int width, int height, Vehicles train, Time time) {
-        g.setColor(cardFill);
-        g.fillRoundRect(x, y, width, height, 12, 12);
-        g.setColor(cardBorder);
-        g.drawRoundRect(x, y, width, height, 12, 12);
-
-        // Coloured stripe matching the line on the map.
+    private void drawRow(Graphics g, int y, Vehicles train, Time time) {
+        // Line-colour swatch next to the train name.
         g.setColor(SideTrain.lineColour(train.getName()));
-        g.fillRoundRect(x, y, 10, height, 12, 12);
-        g.fillRect(x + 5, y, 5, height); // square off the stripe's right edge
+        g.fillRect(colTrain - 16, y - 11, 11, 11);
+        g.setColor(Color.black);
+        g.drawRect(colTrain - 16, y - 11, 11, 11);
 
         Stops next = train.getNextStop();
         String nextName;
@@ -75,16 +99,15 @@ public class SideTable {
         Pair<String, String> current = new Pair<>("Current", train.getCurStop().getName());
         Pair<String, String> upcoming = new Pair<>("Next", nextName);
 
-        int textX = x + 24;
-        g.setColor(Color.black);
-        g.setFont(new Font("SansSerif", Font.BOLD, 15));
-        g.drawString(train.getName() + "  -  " + train.route.name, textX, y + 24);
+        g.setFont(new Font("SansSerif", Font.BOLD, 13));
+        g.drawString(train.getName(), colTrain, y);
 
-        g.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        g.drawString(current.getFirst() + ": " + current.getSecond()
-                + "     Time: " + time.clockAt(0), textX, y + 44);
-        g.drawString(upcoming.getFirst() + ": " + upcoming.getSecond()
-                + "     ETA: " + time.clockAt(MINUTES_BETWEEN_STOPS), textX, y + 62);
+        g.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        g.drawString(train.route.name, colLine, y);
+        g.drawString(current.getSecond(), colCurrent, y);
+        g.drawString(time.clockAt(0), colTime, y);
+        g.drawString(upcoming.getSecond(), colNext, y);
+        g.drawString(time.clockAt(MINUTES_BETWEEN_STOPS), colEta, y);
     }
 
     // Finds the train with the most people aboard using a bounded generic

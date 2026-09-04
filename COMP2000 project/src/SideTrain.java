@@ -2,16 +2,19 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 
-// The narrow left panel: a short scrolling list of train cards with a
-// hover scrollbar. When another view (the timetable) is open it draws
-// itself dark grey instead, via draw(..., dimmed = true).
+// The left panel: a header ("Train current" + clock) above a scrolling list
+// of train cards, with a hover scrollbar for when there are more trains than
+// fit. When another view (the timetable) is open it draws itself dark grey
+// instead, via draw(..., dimmed = true).
 public class SideTrain {
 
     private final int width;   // panel width in pixels
     private final int top;     // y where the panel starts (below the top bar)
 
-    int cardSpacing = 124;     // vertical gap from one card to the next
-    int maxVisibleCards = 3;   // how many cards fit before you must scroll
+    int headerHeight = 56;    // title + clock line, above the card list
+    int cardHeight = 70;
+    int cardGap = 14;
+    int cardSpacing = cardHeight + cardGap;
 
     int scrollbarWidth = 8;
     int scrollbarWidthHot = 12;
@@ -27,7 +30,8 @@ public class SideTrain {
 
     Color panelBody = new Color(120, 120, 120);
     Color dimBody = new Color(70, 70, 70);
-    Color cardBackground = new Color(225, 225, 225);
+    Color cardBackground = new Color(248, 248, 248);
+    Color cardBorder = new Color(90, 90, 90);
     Color scrollTrack = new Color(80, 80, 80);
     Color thumbNormal = new Color(150, 150, 150);
     Color thumbHoverColour = new Color(195, 195, 195);
@@ -38,7 +42,7 @@ public class SideTrain {
         this.top = top;
     }
 
-    public void draw(Graphics g, int panelHeight, Vehicles[] trains, boolean dimmed) {
+    public void draw(Graphics g, int panelHeight, Vehicles[] trains, boolean dimmed, Time time) {
         int fullHeight = panelHeight - top;
 
         if (dimmed) {
@@ -55,29 +59,31 @@ public class SideTrain {
             return;
         }
 
-        contentHeight = trains.length * cardSpacing + 12;
-        viewHeight = Math.min(fullHeight, maxVisibleCards * cardSpacing + 12);
-        scrollY = clampScroll(scrollY);
-
         g.setColor(panelBody);
         g.fillRect(0, top, width, fullHeight);
 
-        // Clip so scrolled cards never paint over the top bar or past the list.
+        g.setColor(Color.black);
+        g.setFont(new Font("SansSerif", Font.BOLD, 18));
+        g.drawString("Train current", 16, top + 26);
+        g.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        g.drawString("Clock: " + time.getClockText(), 16, top + 44);
+
+        int listTop = top + headerHeight;
+        contentHeight = trains.length * cardSpacing + 8;
+        viewHeight = fullHeight - headerHeight;
+        scrollY = clampScroll(scrollY);
+
+        // Clip so scrolled cards never paint over the header or past the list.
         Graphics clipped = g.create();
-        clipped.clipRect(0, top, width, viewHeight);
-        int cardY = top + 12 - scrollY;
+        clipped.clipRect(0, listTop, width, viewHeight);
+        int cardY = listTop + 8 - scrollY;
         for (Vehicles train : trains) {
-            drawTrainCard(clipped, cardY, train);
+            drawTrainCard(clipped, cardY, train, time);
             cardY += cardSpacing;
         }
         clipped.dispose();
 
-        if (viewHeight < fullHeight) {
-            g.setColor(scrollTrack);
-            g.fillRect(0, top + viewHeight, width, 2);
-        }
-
-        drawScrollbar(g);
+        drawScrollbar(g, listTop);
     }
 
     // --- scrolling ----------------------------------------------------------
@@ -98,9 +104,9 @@ public class SideTrain {
         return Math.max(30, Math.min(h, viewHeight));
     }
 
-    private int thumbY() {
-        if (maxScroll() == 0) return top;
-        return top + (int) ((long) (viewHeight - thumbHeight()) * scrollY / maxScroll());
+    private int thumbY(int listTop) {
+        if (maxScroll() == 0) return listTop;
+        return listTop + (int) ((long) (viewHeight - thumbHeight()) * scrollY / maxScroll());
     }
 
     public void scrollBy(int amount) {
@@ -109,10 +115,11 @@ public class SideTrain {
 
     // Returns true if something visible changed (so the caller repaints).
     public boolean setPointer(int x, int y) {
+        int listTop = top + headerHeight;
         boolean near = x >= 0 && x <= width + hoverMargin
-                && y >= top && y <= top + viewHeight;
+                && y >= listTop && y <= listTop + viewHeight;
         int tX = width - currentWidth();
-        int tY = thumbY();
+        int tY = thumbY(listTop);
         boolean overThumb = near && x >= tX - hoverMargin && y >= tY && y <= tY + thumbHeight();
 
         boolean changed = (near != pointerNearBar) || (overThumb != thumbHover);
@@ -127,8 +134,9 @@ public class SideTrain {
 
     public boolean isOverScrollbar(int x, int y) {
         if (maxScroll() == 0) return false;
+        int listTop = top + headerHeight;
         return x >= width - scrollbarWidthHot - 4 && x <= width + 4
-                && y >= top && y <= top + viewHeight;
+                && y >= listTop && y <= listTop + viewHeight;
     }
 
     public void dragScrollTo(int mouseY) {
@@ -137,7 +145,8 @@ public class SideTrain {
             scrollY = 0;
             return;
         }
-        int rel = mouseY - top - thumbHeight() / 2;
+        int listTop = top + headerHeight;
+        int rel = mouseY - listTop - thumbHeight() / 2;
         scrollY = clampScroll((int) ((long) rel * maxScroll() / travel));
     }
 
@@ -152,16 +161,16 @@ public class SideTrain {
         return scrollbarWidth;
     }
 
-    private void drawScrollbar(Graphics g) {
+    private void drawScrollbar(Graphics g, int listTop) {
         if (!scrollbarShowing()) return;
         int barW = currentWidth();
         int trackX = width - barW;
 
         g.setColor(scrollTrack);
-        g.fillRect(trackX, top, barW, viewHeight);
+        g.fillRect(trackX, listTop, barW, viewHeight);
 
         int thumbH = thumbHeight();
-        int ty = thumbY();
+        int ty = thumbY(listTop);
         if (thumbDragging) {
             g.setColor(thumbDragColour);
         } else if (thumbHover) {
@@ -174,30 +183,21 @@ public class SideTrain {
         g.drawRect(trackX, ty, barW - 1, thumbH - 1);
     }
 
-    // --- one train card ---------------------------------------------------
+    // --- one train card, styled to match SideTable's rows ------------------
 
-    private void drawTrainCard(Graphics g, int cardY, Vehicles train) {
+    private void drawTrainCard(Graphics g, int cardY, Vehicles train, Time time) {
         int cardX = 10;
         int cardWidth = width - 20;
-        int cardHeight = 112;
 
         g.setColor(cardBackground);
-        g.fillRect(cardX, cardY, cardWidth, cardHeight);
-        g.setColor(Color.black);
-        g.drawRect(cardX, cardY, cardWidth, cardHeight);
+        g.fillRoundRect(cardX, cardY, cardWidth, cardHeight, 10, 10);
+        g.setColor(cardBorder);
+        g.drawRoundRect(cardX, cardY, cardWidth, cardHeight, 10, 10);
 
-        drawTrainIcon(g, cardX + 10, cardY + 10, 46, train.getName(), lineColour(train.getName()));
-
-        int textX = cardX + 10 + 46 + 10;
-        int textY = cardY + 20;
-
-        g.setColor(Color.black);
-        g.setFont(new Font("SansSerif", Font.BOLD, 13));
-        g.drawString(train.getName() + " (" + train.route.name + ")", textX, textY);
-
-        g.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        g.drawString("- On train: " + train.getPassengers().size(), textX, textY + 20);
-        g.drawString("- Current: " + train.getCurStop().getName(), textX, textY + 38);
+        // Coloured stripe matching the line on the map.
+        g.setColor(lineColour(train.getName()));
+        g.fillRoundRect(cardX, cardY, 8, cardHeight, 10, 10);
+        g.fillRect(cardX + 4, cardY, 4, cardHeight); // square off the stripe's right edge
 
         Stops next = train.getNextStop();
         String nextName;
@@ -206,17 +206,21 @@ public class SideTrain {
         } else {
             nextName = next.getName();
         }
-        g.drawString("- Next: " + nextName, textX, textY + 56);
-    }
 
-    private void drawTrainIcon(Graphics g, int x, int y, int size, String label, Color colour) {
-        g.setColor(colour);
-        g.fillRect(x, y, size, size);
+        // Bundle each label + value with a generic Pair before drawing it.
+        Pair<String, String> current = new Pair<>("Current", train.getCurStop().getName());
+        Pair<String, String> upcoming = new Pair<>("Next", nextName);
+
+        int textX = cardX + 18;
         g.setColor(Color.black);
-        g.drawRect(x, y, size, size);
-        g.setColor(Color.white);
-        g.setFont(new Font("SansSerif", Font.BOLD, 13));
-        g.drawString(label, x + 8, y + size / 2 + 5);
+        g.setFont(new Font("SansSerif", Font.BOLD, 14));
+        g.drawString(train.getName() + " - " + train.route.name, textX, cardY + 20);
+
+        g.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        g.drawString(current.getFirst() + ": " + current.getSecond()
+                + "   Time: " + time.clockAt(0), textX, cardY + 40);
+        g.drawString(upcoming.getFirst() + ": " + upcoming.getSecond()
+                + "   ETA: " + time.clockAt(3), textX, cardY + 58);
     }
 
     // Colour each train shares with its line on the map. Shared with SideTable.
