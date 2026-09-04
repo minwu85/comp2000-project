@@ -18,8 +18,8 @@ public class SidePanel {
     int pauseMargin = 20;
 
     // Tab sizing: snug by default, a little wider while the mouse hovers over it.
-    int tabShortWidth = 130;
-    int tabFullWidth = 165;
+    int tabShortWidth = 100; 
+    int tabFullWidth = 135; //mouse over
     int tabHeight = 40;
     int tabPoint = 14;   // length of the pointed tip
     int tabGap = 10;     // vertical gap between the two tabs
