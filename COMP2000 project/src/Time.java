@@ -20,6 +20,8 @@ public class Time {
 
     private static final DateTimeFormatter CLOCK_FORMAT =
             DateTimeFormatter.ofPattern("hh:mm:ss a", Locale.ENGLISH); // e.g. 06:05:07 AM
+    private static final DateTimeFormatter SHORT_CLOCK_FORMAT =
+            DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH); // e.g. 06:05 AM
     private static final DateTimeFormatter DATE_FORMAT =
             DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", Locale.ENGLISH); // Monday, 1 September 2029
 
@@ -58,6 +60,12 @@ public class Time {
     // Weekday, day, month and year, e.g. "Monday, 1 September 2029".
     public String getDateText() {
         return simNow().format(DATE_FORMAT);
+    }
+
+    // The simulated clock a given number of minutes ahead, e.g. "06:08 AM".
+    // Used by the timetable to estimate stop times.
+    public String clockAt(int minutesAhead) {
+        return simNow().plusMinutes(minutesAhead).format(SHORT_CLOCK_FORMAT);
     }
 
     // Space (or clicking the button) toggles between running and paused.

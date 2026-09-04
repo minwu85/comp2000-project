@@ -2,40 +2,41 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 
+// Coordinates the fixed UI: the top bar (Time box, HOME button, pause button)
+// and the two left views - SideTrain (list of trains) and SideTable (timetable).
+// Two chevron handles on the right edge switch between the views. While the
+// timetable is open, SideTrain is drawn dark grey.
 public class SidePanel {
 
-    int topHeight = 60;
-    int leftWidth = 240;
+    int topHeight = 64;
+    int leftWidth = 240;   // width of the SideTrain panel
+    int tableWidth = 960;  // right edge of the SideTable panel when it is open
 
     int buttonSize = 40;
     int buttonMargin = 20;
+    int buttonGap = 10;
 
-    int cardSpacing = 124;   // vertical gap from one train card to the next
-    int maxVisibleCards = 3; // how many train cards fit before you have to scroll
+    // Chevron handle size.
+    int handleWidth = 150;
+    int handleHeight = 40;
+    int handlePoint = 14;  // length of the pointed tip
 
-    // Scrollbar sizing: it grows a little when the mouse is near it.
-    int scrollbarWidth = 8;
-    int scrollbarWidthHot = 12;
-    int hoverMargin = 28;    // how far right of the bar still counts as "near the side"
+    boolean tableOpen = false;
 
-    // Vertical scroll state for the train list.
-    int scrollY = 0;         // pixels scrolled down
-    int contentHeight = 0;   // total height of all cards (set while drawing)
-    int viewHeight = 0;      // visible height of the scrolling list (set while drawing)
-
-    // Hover / drag state that gives the scrollbar its "effects".
-    boolean pointerNearBar = false; // mouse is near the left bar -> show the scrollbar
-    boolean thumbHover = false;     // mouse is directly over the thumb
-    boolean thumbDragging = false;  // thumb is being dragged
+    // Hover state for the top-bar buttons (gives the "changes colour" effect).
+    boolean homeHover = false;
+    boolean pauseHover = false;
 
     Color darkBar = new Color(45, 45, 45);
-    Color panelBody = new Color(120, 120, 120);
-    Color cardBackground = new Color(225, 225, 225);
     Color accentLine = new Color(30, 144, 255);
-    Color scrollTrack = new Color(80, 80, 80);
-    Color scrollThumbNormal = new Color(150, 150, 150);
-    Color scrollThumbHover = new Color(195, 195, 195);
-    Color scrollThumbDrag = new Color(230, 230, 230);
+    Color boxFill = new Color(245, 245, 245);
+    Color buttonFill = new Color(245, 245, 245);
+    Color buttonHoverFill = new Color(150, 200, 255);
+    Color handleActive = new Color(225, 225, 225);
+    Color handleInactive = new Color(90, 90, 90);
+
+    SideTrain sideTrain = new SideTrain(leftWidth, topHeight);
+    SideTable sideTable = new SideTable(leftWidth, topHeight, tableWidth);
 
     public int getTopHeight() {
         return topHeight;
@@ -45,23 +46,32 @@ public class SidePanel {
         return leftWidth;
     }
 
-    // True if (x, y) is over the fixed top bar or left bar, not the map.
-    public boolean isOverPanel(int x, int y, int panelWidth, int panelHeight) {
-        if (y < topHeight) {
-            return true;
-        }
-        if (x < leftWidth) {
-            return true;
-        }
-        return false;
+    public boolean isTableOpen() {
+        return tableOpen;
     }
 
-    // Draws the top bar (date + clock + pause/continue) and the left bar (one card per train).
-    // Always called on an untranslated Graphics, so it stays fixed while the map is dragged.
-    // Takes Vehicles[] (not Train[]) so any vehicle subtype can be shown here.
+    // True if (x, y) is over the fixed UI rather than the draggable map.
+    public boolean isOverPanel(int x, int y, int panelWidth, int panelHeight) {
+        if (y < topHeight) return true;
+        int leftEdge = tableOpen ? tableWidth : leftWidth;
+        if (x < leftEdge) return true;
+        // The switch handle sticks out past that edge.
+        return isOverAnyHandle(x, y);
+    }
+
+    // --- drawing ----------------------------------------------------------
+
     public void display(Graphics g, int panelWidth, int panelHeight, Time time, Vehicles[] trains) {
         drawTopBar(g, panelWidth, time);
-        drawLeftBar(g, panelHeight, trains);
+
+        if (tableOpen) {
+            sideTrain.draw(g, panelHeight, trains, true); // dark grey stub
+            sideTable.draw(g, panelHeight, trains, time);
+        } else {
+            sideTrain.draw(g, panelHeight, trains, false);
+        }
+
+        drawHandles(g);
     }
 
     private void drawTopBar(Graphics g, int panelWidth, Time time) {
@@ -70,230 +80,188 @@ public class SidePanel {
         g.setColor(accentLine);
         g.fillRect(0, topHeight - 3, panelWidth, 3);
 
-        g.setColor(Color.white);
-        g.setFont(new Font("Times New Roman", Font.BOLD, 26));
-        g.drawString(time.getClockText(), 30, 38);
+        // Big box: clock on top, date underneath ("Time | Day").
+        int boxX = 12;
+        int boxY = 8;
+        int boxW = 300;
+        int boxH = topHeight - 18;
+        g.setColor(boxFill);
+        g.fillRect(boxX, boxY, boxW, boxH);
+        g.setColor(Color.black);
+        g.drawRect(boxX, boxY, boxW, boxH);
 
-        // Date sits to the right of the clock, in a smaller font.
-        g.setFont(new Font("SansSerif", Font.PLAIN, 15));
-        g.drawString(time.getDateText(), 250, 38);
+        g.setFont(new Font("Times New Roman", Font.BOLD, 22));
+        g.drawString(time.getClockText(), boxX + 14, boxY + 24);
+        g.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        g.drawString(time.getDateText(), boxX + 14, boxY + 42);
 
+        drawHomeButton(g, panelWidth);
         drawPauseButton(g, panelWidth, time.isRunning());
     }
 
-    private void drawLeftBar(Graphics g, int panelHeight, Vehicles[] trains) {
-        int barTop = topHeight;
-        int fullHeight = panelHeight - barTop;
+    // --- top-bar buttons ------------------------------------------------
 
-        contentHeight = trains.length * cardSpacing + 12;
-        // Only a few cards are visible at once; the rest are reached by scrolling.
-        viewHeight = Math.min(fullHeight, maxVisibleCards * cardSpacing + 12);
-        scrollY = clampScroll(scrollY); // keep valid if the window resized
-
-        g.setColor(panelBody);
-        g.fillRect(0, barTop, leftWidth, fullHeight);
-
-        // Clip to the visible list area so scrolled cards never paint over the top
-        // bar or past the bottom of the list.
-        Graphics clipped = g.create();
-        clipped.clipRect(0, barTop, leftWidth, viewHeight);
-        int cardY = barTop + 12 - scrollY;
-        for (Vehicles train : trains) {
-            drawTrainCard(clipped, cardY, train);
-            cardY += cardSpacing;
-        }
-        clipped.dispose();
-
-        // Divider under the scrolling list.
-        if (viewHeight < fullHeight) {
-            g.setColor(scrollTrack);
-            g.fillRect(0, barTop + viewHeight, leftWidth, 2);
-        }
-
-        drawScrollbar(g, barTop);
-    }
-
-    // --- Scrolling ------------------------------------------------------------
-
-    private int maxScroll() {
-        return Math.max(0, contentHeight - viewHeight);
-    }
-
-    private int clampScroll(int value) {
-        if (value < 0) return 0;
-        if (value > maxScroll()) return maxScroll();
-        return value;
-    }
-
-    private int thumbHeight() {
-        if (contentHeight <= 0) return 30;
-        int h = (int) ((long) viewHeight * viewHeight / contentHeight);
-        return Math.max(30, Math.min(h, viewHeight));
-    }
-
-    private int thumbY(int barTop) {
-        if (maxScroll() == 0) return barTop;
-        return barTop + (int) ((long) (viewHeight - thumbHeight()) * scrollY / maxScroll());
-    }
-
-    // Wheel notch scrolling (positive amount = scroll down).
-    public void scrollBy(int amount) {
-        scrollY = clampScroll(scrollY + amount);
-    }
-
-    // Called on every mouse move/drag so the scrollbar can show itself and light
-    // up. Returns true if something visible changed (so the caller repaints).
-    public boolean setPointer(int x, int y) {
-        boolean near = x <= leftWidth + hoverMargin && x >= 0 && y >= topHeight && y <= topHeight + viewHeight;
-
-        int tX = leftWidth - currentScrollbarWidth();
-        int tY = thumbY(topHeight);
-        boolean overThumb = near && x >= tX - hoverMargin && y >= tY && y <= tY + thumbHeight();
-
-        boolean changed = (near != pointerNearBar) || (overThumb != thumbHover);
-        pointerNearBar = near;
-        thumbHover = overThumb;
-        return changed;
-    }
-
-    public void setThumbDragging(boolean dragging) {
-        thumbDragging = dragging;
-    }
-
-    private boolean scrollbarShowing() {
-        return maxScroll() > 0 && (pointerNearBar || thumbHover || thumbDragging);
-    }
-
-    private int currentScrollbarWidth() {
-        return (thumbHover || thumbDragging) ? scrollbarWidthHot : scrollbarWidth;
-    }
-
-    // True if (x, y) is on (or right next to) the scrollbar, so a press grabs the thumb.
-    public boolean isOverScrollbar(int x, int y) {
-        if (maxScroll() == 0) return false;
-        return x >= leftWidth - scrollbarWidthHot - 4 && x <= leftWidth + 4
-                && y >= topHeight && y <= topHeight + viewHeight;
-    }
-
-    // Jump the scroll so the thumb centres on mouseY (used while dragging the thumb).
-    public void dragScrollTo(int mouseY) {
-        int travel = viewHeight - thumbHeight();
-        if (travel <= 0) {
-            scrollY = 0;
-            return;
-        }
-        int rel = mouseY - topHeight - thumbHeight() / 2;
-        scrollY = clampScroll((int) ((long) rel * maxScroll() / travel));
-    }
-
-    // Two grey rectangles (track + thumb). Only drawn while the mouse is near the
-    // side; the thumb brightens on hover and brightens more while dragged.
-    private void drawScrollbar(Graphics g, int barTop) {
-        if (!scrollbarShowing()) {
-            return;
-        }
-        int barW = currentScrollbarWidth();
-        int trackX = leftWidth - barW;
-
-        g.setColor(scrollTrack);
-        g.fillRect(trackX, barTop, barW, viewHeight);
-
-        int thumbH = thumbHeight();
-        int ty = thumbY(barTop);
-        if (thumbDragging) {
-            g.setColor(scrollThumbDrag);
-        } else if (thumbHover) {
-            g.setColor(scrollThumbHover);
-        } else {
-            g.setColor(scrollThumbNormal);
-        }
-        g.fillRect(trackX, ty, barW, thumbH);
-        g.setColor(Color.black);
-        g.drawRect(trackX, ty, barW - 1, thumbH - 1);
-    }
-
-    // Card: a mini version of the on-map train icon, next to its info.
-    private void drawTrainCard(Graphics g, int cardY, Vehicles train) {
-        int cardX = 10;
-        int cardWidth = leftWidth - 20;
-        int cardHeight = 112;
-
-        g.setColor(cardBackground);
-        g.fillRect(cardX, cardY, cardWidth, cardHeight);
-        g.setColor(Color.black);
-        g.drawRect(cardX, cardY, cardWidth, cardHeight);
-
-        drawTrainIcon(g, cardX + 10, cardY + 10, 46, train.getName(), lineColour(train.getName()));
-
-        int textX = cardX + 10 + 46 + 10;
-        int textY = cardY + 20;
-
-        g.setColor(Color.black);
-        g.setFont(new Font("SansSerif", Font.BOLD, 13));
-        g.drawString(train.getName() + " (" + train.route.name + ")", textX, textY);
-
-        g.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        g.drawString("\u2022 On train: " + train.getPassengers().size(), textX, textY + 20);
-        g.drawString("\u2022 Current: " + train.getCurStop().getName(), textX, textY + 38);
-
-        Stops next = train.getNextStop();
-        String nextName = (next == null) ? "-" : next.getName();
-        g.drawString("\u2022 Next: " + nextName, textX, textY + 56);
-    }
-
-    // Same box/label look as the train on the map, just small and in its line colour.
-    private void drawTrainIcon(Graphics g, int x, int y, int size, String label, Color colour) {
-        g.setColor(colour);
-        g.fillRect(x, y, size, size);
-        g.setColor(Color.black);
-        g.drawRect(x, y, size, size);
-
-        g.setColor(Color.white);
-        g.setFont(new Font("SansSerif", Font.BOLD, 13));
-        g.drawString(label, x + 8, y + size / 2 + 5);
-    }
-
-    // Matches each train to the colour its line is drawn with on the map.
-    private Color lineColour(String trainName) {
-        if (trainName.equals("T1")) return new Color(255, 0, 0);   // Red Line
-        if (trainName.equals("T2")) return new Color(0, 0, 255);   // Blue Line
-        if (trainName.equals("T3")) return new Color(191, 0, 255); // Purple Line
-        if (trainName.equals("T4")) return new Color(0, 160, 0);   // Green Line
-        return Color.gray;
-    }
-
-    // True if (mouseX, mouseY) is inside the pause/continue button.
-    public boolean isButtonClicked(int mouseX, int mouseY, int panelWidth) {
-        int x = buttonX(panelWidth);
-        int y = buttonY();
-        return mouseX >= x && mouseX <= x + buttonSize && mouseY >= y && mouseY <= y + buttonSize;
-    }
-
-    private int buttonX(int panelWidth) {
+    private int pauseX(int panelWidth) {
         return panelWidth - buttonSize - buttonMargin;
+    }
+
+    private int homeX(int panelWidth) {
+        return pauseX(panelWidth) - buttonSize - buttonGap;
     }
 
     private int buttonY() {
         return (topHeight - buttonSize) / 2;
     }
 
-    // Two bars while running (pause), triangle while paused (continue).
-    private void drawPauseButton(Graphics g, int panelWidth, boolean running) {
-        int x = buttonX(panelWidth);
+    public boolean isPauseClicked(int mouseX, int mouseY, int panelWidth) {
+        return inRect(mouseX, mouseY, pauseX(panelWidth), buttonY(), buttonSize, buttonSize);
+    }
+
+    public boolean isHomeClicked(int mouseX, int mouseY, int panelWidth) {
+        return inRect(mouseX, mouseY, homeX(panelWidth), buttonY(), buttonSize, buttonSize);
+    }
+
+    // Simple house icon. Reserved for later - for now it just hover-highlights.
+    private void drawHomeButton(Graphics g, int panelWidth) {
+        int x = homeX(panelWidth);
         int y = buttonY();
 
-        g.setColor(Color.white);
+        g.setColor(homeHover ? buttonHoverFill : buttonFill);
         g.fillRect(x, y, buttonSize, buttonSize);
         g.setColor(Color.black);
         g.drawRect(x, y, buttonSize, buttonSize);
 
+        int[] roofX = {x + 6, x + buttonSize / 2, x + buttonSize - 6};
+        int[] roofY = {y + 20, y + 7, y + 20};
+        g.setColor(new Color(60, 60, 60));
+        g.fillPolygon(roofX, roofY, 3);
+        g.fillRect(x + 11, y + 20, buttonSize - 22, 13);
+        g.setColor(homeHover ? buttonHoverFill : buttonFill);
+        g.fillRect(x + buttonSize / 2 - 3, y + 25, 6, 8); // door
+    }
+
+    private void drawPauseButton(Graphics g, int panelWidth, boolean running) {
+        int x = pauseX(panelWidth);
+        int y = buttonY();
+
+        g.setColor(pauseHover ? buttonHoverFill : buttonFill);
+        g.fillRect(x, y, buttonSize, buttonSize);
+        g.setColor(Color.black);
+        g.drawRect(x, y, buttonSize, buttonSize);
+
+        g.setColor(Color.black);
         if (running) {
             g.fillRect(x + 10, y + 8, 7, buttonSize - 16);
             g.fillRect(x + buttonSize - 17, y + 8, 7, buttonSize - 16);
         } else {
-            int[] xPoints = {x + 12, x + 12, x + buttonSize - 12};
-            int[] yPoints = {y + 8, y + buttonSize - 8, y + buttonSize / 2};
-            g.fillPolygon(xPoints, yPoints, 3);
+            int[] xs = {x + 12, x + 12, x + buttonSize - 12};
+            int[] ys = {y + 8, y + buttonSize - 8, y + buttonSize / 2};
+            g.fillPolygon(xs, ys, 3);
         }
+    }
+
+    // --- view-switch handles -----------------------------------------
+
+    private int handleRightEdge() {
+        return tableOpen ? tableWidth : leftWidth;
+    }
+
+    private int topHandleY() {
+        return topHeight + 16;
+    }
+
+    private int bottomHandleY() {
+        return topHeight + 16 + handleHeight + 10;
+    }
+
+    private String activeLabel() {
+        return tableOpen ? "Train time table" : "Train curr";
+    }
+
+    private String otherLabel() {
+        return tableOpen ? "Train curr" : "Train time table";
+    }
+
+    private void drawHandles(Graphics g) {
+        int x = handleRightEdge();
+        drawHandle(g, x, topHandleY(), activeLabel(), handleActive, Color.black);
+        drawHandle(g, x, bottomHandleY(), otherLabel(), handleInactive, Color.white);
+    }
+
+    private void drawHandle(Graphics g, int x, int y, String label, Color fill, Color textColour) {
+        int[] xs = {x, x + handleWidth, x + handleWidth + handlePoint, x + handleWidth, x};
+        int[] ys = {y, y, y + handleHeight / 2, y + handleHeight, y + handleHeight};
+        g.setColor(fill);
+        g.fillPolygon(xs, ys, 5);
+        g.setColor(Color.black);
+        g.drawPolygon(xs, ys, 5);
+
+        g.setColor(textColour);
+        g.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        g.drawString(label, x + 12, y + handleHeight / 2 + 5);
+    }
+
+    private boolean inHandle(int mouseX, int mouseY, int handleY) {
+        int x = handleRightEdge();
+        return inRect(mouseX, mouseY, x, handleY, handleWidth + handlePoint, handleHeight);
+    }
+
+    private boolean isOverAnyHandle(int mouseX, int mouseY) {
+        return inHandle(mouseX, mouseY, topHandleY()) || inHandle(mouseX, mouseY, bottomHandleY());
+    }
+
+    // Handles a click on either handle. Returns true if one was hit.
+    // The bottom (inactive) handle switches views.
+    public boolean handleTabClick(int mouseX, int mouseY, int panelWidth) {
+        if (inHandle(mouseX, mouseY, bottomHandleY())) {
+            tableOpen = !tableOpen;
+            return true;
+        }
+        return inHandle(mouseX, mouseY, topHandleY()); // active handle: no-op but consume it
+    }
+
+    // --- pointer / scroll forwarding (only meaningful for SideTrain) ----
+
+    public boolean setPointer(int x, int y) {
+        boolean changed = false;
+        // These need the real panel width; Panel passes screen coords, and the
+        // buttons live near the right edge - recompute against a stored width is
+        // overkill, so we accept the width via the same call used for clicks.
+        // setPointer is called with raw coords; button hover is refreshed in
+        // setButtonHover below.
+        changed |= sideTrain.setPointer(x, y);
+        return changed;
+    }
+
+    // Called from Panel's mouseMoved with the panel width so button hover works.
+    public boolean setButtonHover(int x, int y, int panelWidth) {
+        boolean nh = isHomeClicked(x, y, panelWidth);
+        boolean np = isPauseClicked(x, y, panelWidth);
+        boolean changed = (nh != homeHover) || (np != pauseHover);
+        homeHover = nh;
+        pauseHover = np;
+        return changed;
+    }
+
+    public boolean isOverScrollbar(int x, int y) {
+        return !tableOpen && sideTrain.isOverScrollbar(x, y);
+    }
+
+    public void dragScrollTo(int y) {
+        if (!tableOpen) sideTrain.dragScrollTo(y);
+    }
+
+    public void scrollBy(int amount) {
+        if (!tableOpen) sideTrain.scrollBy(amount);
+    }
+
+    public void setThumbDragging(boolean dragging) {
+        sideTrain.setThumbDragging(dragging);
+    }
+
+    // --- helper ---------------------------------------------------------
+
+    private boolean inRect(int px, int py, int x, int y, int w, int h) {
+        return px >= x && px <= x + w && py >= y && py <= y + h;
     }
 }

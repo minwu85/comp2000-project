@@ -33,9 +33,12 @@ graph TD
     Passenger -->|walks along| Routes
     Passenger -->|current / start / end| Stops
 
-    SidePanel -->|reads| Vehicles
+    SidePanel -->|owns| SideTrain
+    SidePanel -->|owns| SideTable
     SidePanel -->|reads| Time
-    SidePanel -->|reads names from| Stops
+    SideTrain -->|reads| Vehicles
+    SideTable -->|reads| Vehicles
+    SideTable -->|reads times from| Time
 
     Time -->|wraps| Timer[javax.swing.Timer]:::ext
 
@@ -54,9 +57,12 @@ Plain-text version:
 
 ```
 Panel (the window + game loop)
- ├─ SidePanel: draws the top bar (date + AM/PM clock + pause) and a
- │             3-card scrolling list of trains; the grey scrollbar (track + thumb)
- │             appears when the mouse is near the side and lights up on hover/drag
+ ├─ SidePanel: draws the top bar (Time|Day box, HOME + pause buttons) and
+ │             switches between two views with the chevron handles on the right:
+ │   ├─ SideTrain: 3-card scrolling list of trains, hover scrollbar; goes dark
+ │   │             grey (a collapsed stub) while the timetable is open
+ │   └─ SideTable: wide timetable - one row per train (line, current stop,
+ │                 time now, next stop, ETA)
  ├─ Time: 1 real sec = 5 ticks (trains step once per real sec); each real sec also
  │        jumps the clock ~5 sim minutes (+/-15s random) and reports date + 12h time
  ├─ Passenger: a commuter moving stop to stop

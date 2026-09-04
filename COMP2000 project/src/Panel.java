@@ -125,21 +125,30 @@ public class Panel extends Frame{
             }
 
             public void mouseClicked(MouseEvent e) {
-                if (sidePanel.isButtonClicked(e.getX(), e.getY(), width)) {
+                if (sidePanel.isPauseClicked(e.getX(), e.getY(), width)) {
                     time.toggle();
+                    repaint();
+                } else if (sidePanel.isHomeClicked(e.getX(), e.getY(), width)) {
+                    // HOME button reserved for later; just redraw for now.
+                    repaint();
+                } else if (sidePanel.handleTabClick(e.getX(), e.getY(), width)) {
                     repaint();
                 }
             }
 
             public void mouseMoved(MouseEvent e) {
-                // Show / light up the scrollbar when the mouse is near the side.
-                if (sidePanel.setPointer(e.getX(), e.getY())) {
+                // Light up the scrollbar / buttons when the mouse is near them.
+                boolean changed = sidePanel.setPointer(e.getX(), e.getY());
+                changed |= sidePanel.setButtonHover(e.getX(), e.getY(), width);
+                if (changed) {
                     repaint();
                 }
             }
 
             public void mouseExited(MouseEvent e) {
-                if (sidePanel.setPointer(-100, -100)) {
+                boolean changed = sidePanel.setPointer(-100, -100);
+                changed |= sidePanel.setButtonHover(-100, -100, width);
+                if (changed) {
                     repaint();
                 }
             }
