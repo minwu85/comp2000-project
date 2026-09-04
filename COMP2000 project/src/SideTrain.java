@@ -146,7 +146,10 @@ public class SideTrain {
     }
 
     private int currentWidth() {
-        return (thumbHover || thumbDragging) ? scrollbarWidthHot : scrollbarWidth;
+        if (thumbHover || thumbDragging) {
+            return scrollbarWidthHot;
+        }
+        return scrollbarWidth;
     }
 
     private void drawScrollbar(Graphics g) {
@@ -197,7 +200,12 @@ public class SideTrain {
         g.drawString("- Current: " + train.getCurStop().getName(), textX, textY + 38);
 
         Stops next = train.getNextStop();
-        String nextName = (next == null) ? "-" : next.getName();
+        String nextName;
+        if (next == null) {
+            nextName = "-";
+        } else {
+            nextName = next.getName();
+        }
         g.drawString("- Next: " + nextName, textX, textY + 56);
     }
 

@@ -2,29 +2,31 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 
-// Coordinates the fixed UI: the top bar (Time box, HOME button, pause button)
-// and the two left views - SideTrain (list of trains) and SideTable (timetable).
-// Two chevron handles on the right edge switch between the views. While the
-// timetable is open, SideTrain is drawn dark grey.
+// Coordinates the fixed UI: the top bar (Time|Day box, pause button) and the
+// two left views - SideTrain (list of trains) and SideTable (timetable).
+// Two chevron tabs on the right edge switch between the views: "Train curr"
+// always sits on top, "Train time table" always sits below it, so their
+// positions never swap - only which one is highlighted as active changes.
+// While the timetable is open, SideTrain is drawn dark grey.
 public class SidePanel {
 
-    int topHeight = 64;
+    int topHeight = 70;
     int leftWidth = 240;   // width of the SideTrain panel
     int tableWidth = 960;  // right edge of the SideTable panel when it is open
 
-    int buttonSize = 40;
-    int buttonMargin = 20;
-    int buttonGap = 10;
+    int pauseSize = 56;
+    int pauseMargin = 20;
 
-    // Chevron handle size.
-    int handleWidth = 150;
-    int handleHeight = 40;
-    int handlePoint = 14;  // length of the pointed tip
+    // Tab sizing: short by default, wider while the mouse hovers over it.
+    int tabShortWidth = 46;
+    int tabFullWidth = 170;
+    int tabHeight = 40;
+    int tabPoint = 14;   // length of the pointed tip
+    int tabGap = 10;     // vertical gap between the two tabs
 
     boolean tableOpen = false;
-
-    // Hover state for the top-bar buttons (gives the "changes colour" effect).
-    boolean homeHover = false;
+    boolean trainTabHover = false;
+    boolean tableTabHover = false;
     boolean pauseHover = false;
 
     Color darkBar = new Color(45, 45, 45);
@@ -32,8 +34,8 @@ public class SidePanel {
     Color boxFill = new Color(245, 245, 245);
     Color buttonFill = new Color(245, 245, 245);
     Color buttonHoverFill = new Color(150, 200, 255);
-    Color handleActive = new Color(225, 225, 225);
-    Color handleInactive = new Color(90, 90, 90);
+    Color tabActiveFill = new Color(225, 225, 225);
+    Color tabInactiveFill = new Color(90, 90, 90);
 
     SideTrain sideTrain = new SideTrain(leftWidth, topHeight);
     SideTable sideTable = new SideTable(leftWidth, topHeight, tableWidth);
@@ -52,11 +54,19 @@ public class SidePanel {
 
     // True if (x, y) is over the fixed UI rather than the draggable map.
     public boolean isOverPanel(int x, int y, int panelWidth, int panelHeight) {
-        if (y < topHeight) return true;
-        int leftEdge = tableOpen ? tableWidth : leftWidth;
-        if (x < leftEdge) return true;
-        // The switch handle sticks out past that edge.
-        return isOverAnyHandle(x, y);
+        if (y < topHeight) {
+            return true;
+        }
+        int leftEdge;
+        if (tableOpen) {
+            leftEdge = tableWidth;
+        } else {
+            leftEdge = leftWidth;
+        }
+        if (x < leftEdge) {
+            return true;
+        }
+        return isOverAnyTab(x, y);
     }
 
     // --- drawing ----------------------------------------------------------
@@ -71,7 +81,7 @@ public class SidePanel {
             sideTrain.draw(g, panelHeight, trains, false);
         }
 
-        drawHandles(g);
+        drawTabs(g);
     }
 
     private void drawTopBar(Graphics g, int panelWidth, Time time) {
@@ -84,182 +94,192 @@ public class SidePanel {
         int boxX = 12;
         int boxY = 8;
         int boxW = 300;
-        int boxH = topHeight - 18;
+        int boxH = topHeight - 16;
         g.setColor(boxFill);
         g.fillRect(boxX, boxY, boxW, boxH);
         g.setColor(Color.black);
         g.drawRect(boxX, boxY, boxW, boxH);
 
-        g.setFont(new Font("Times New Roman", Font.BOLD, 22));
-        g.drawString(time.getClockText(), boxX + 14, boxY + 24);
-        g.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        g.drawString(time.getDateText(), boxX + 14, boxY + 42);
+        g.setFont(new Font("Times New Roman", Font.BOLD, 24));
+        g.drawString(time.getClockText(), boxX + 14, boxY + 26);
+        g.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        g.drawString(time.getDateText(), boxX + 14, boxY + 45);
 
-        drawHomeButton(g, panelWidth);
         drawPauseButton(g, panelWidth, time.isRunning());
     }
 
-    // --- top-bar buttons ------------------------------------------------
+    // --- top-bar pause button --------------------------------------------
 
     private int pauseX(int panelWidth) {
-        return panelWidth - buttonSize - buttonMargin;
+        return panelWidth - pauseSize - pauseMargin;
     }
 
-    private int homeX(int panelWidth) {
-        return pauseX(panelWidth) - buttonSize - buttonGap;
-    }
-
-    private int buttonY() {
-        return (topHeight - buttonSize) / 2;
+    private int pauseY() {
+        return (topHeight - pauseSize) / 2;
     }
 
     public boolean isPauseClicked(int mouseX, int mouseY, int panelWidth) {
-        return inRect(mouseX, mouseY, pauseX(panelWidth), buttonY(), buttonSize, buttonSize);
+        return inRect(mouseX, mouseY, pauseX(panelWidth), pauseY(), pauseSize, pauseSize);
     }
 
-    public boolean isHomeClicked(int mouseX, int mouseY, int panelWidth) {
-        return inRect(mouseX, mouseY, homeX(panelWidth), buttonY(), buttonSize, buttonSize);
-    }
-
-    // Simple house icon. Reserved for later - for now it just hover-highlights.
-    private void drawHomeButton(Graphics g, int panelWidth) {
-        int x = homeX(panelWidth);
-        int y = buttonY();
-
-        g.setColor(homeHover ? buttonHoverFill : buttonFill);
-        g.fillRect(x, y, buttonSize, buttonSize);
-        g.setColor(Color.black);
-        g.drawRect(x, y, buttonSize, buttonSize);
-
-        int[] roofX = {x + 6, x + buttonSize / 2, x + buttonSize - 6};
-        int[] roofY = {y + 20, y + 7, y + 20};
-        g.setColor(new Color(60, 60, 60));
-        g.fillPolygon(roofX, roofY, 3);
-        g.fillRect(x + 11, y + 20, buttonSize - 22, 13);
-        g.setColor(homeHover ? buttonHoverFill : buttonFill);
-        g.fillRect(x + buttonSize / 2 - 3, y + 25, 6, 8); // door
+    public boolean setButtonHover(int mouseX, int mouseY, int panelWidth) {
+        boolean nowHover = isPauseClicked(mouseX, mouseY, panelWidth);
+        boolean changed = nowHover != pauseHover;
+        pauseHover = nowHover;
+        return changed;
     }
 
     private void drawPauseButton(Graphics g, int panelWidth, boolean running) {
         int x = pauseX(panelWidth);
-        int y = buttonY();
+        int y = pauseY();
 
-        g.setColor(pauseHover ? buttonHoverFill : buttonFill);
-        g.fillRect(x, y, buttonSize, buttonSize);
-        g.setColor(Color.black);
-        g.drawRect(x, y, buttonSize, buttonSize);
-
-        g.setColor(Color.black);
-        if (running) {
-            g.fillRect(x + 10, y + 8, 7, buttonSize - 16);
-            g.fillRect(x + buttonSize - 17, y + 8, 7, buttonSize - 16);
+        if (pauseHover) {
+            g.setColor(buttonHoverFill);
         } else {
-            int[] xs = {x + 12, x + 12, x + buttonSize - 12};
-            int[] ys = {y + 8, y + buttonSize - 8, y + buttonSize / 2};
+            g.setColor(buttonFill);
+        }
+        g.fillRect(x, y, pauseSize, pauseSize);
+        g.setColor(Color.black);
+        g.drawRect(x, y, pauseSize, pauseSize);
+
+        int barW = pauseSize / 6;
+        if (running) {
+            g.fillRect(x + pauseSize / 5, y + 10, barW, pauseSize - 20);
+            g.fillRect(x + pauseSize - pauseSize / 5 - barW, y + 10, barW, pauseSize - 20);
+        } else {
+            int[] xs = {x + 16, x + 16, x + pauseSize - 14};
+            int[] ys = {y + 10, y + pauseSize - 10, y + pauseSize / 2};
             g.fillPolygon(xs, ys, 3);
         }
     }
 
-    // --- view-switch handles -----------------------------------------
+    // --- view-switch tabs -------------------------------------------------
 
-    private int handleRightEdge() {
-        return tableOpen ? tableWidth : leftWidth;
+    private int tabX() {
+        if (tableOpen) {
+            return tableWidth;
+        }
+        return leftWidth;
     }
 
-    private int topHandleY() {
+    private int trainTabY() {
         return topHeight + 16;
     }
 
-    private int bottomHandleY() {
-        return topHeight + 16 + handleHeight + 10;
+    private int tableTabY() {
+        return topHeight + 16 + tabHeight + tabGap;
     }
 
-    private String activeLabel() {
-        return tableOpen ? "Train time table" : "Train curr";
+    private int tabWidth(boolean hover) {
+        if (hover) {
+            return tabFullWidth;
+        }
+        return tabShortWidth;
     }
 
-    private String otherLabel() {
-        return tableOpen ? "Train curr" : "Train time table";
+    private void drawTabs(Graphics g) {
+        int x = tabX();
+        drawTab(g, x, trainTabY(), "Cur", "Train curr", !tableOpen, trainTabHover);
+        drawTab(g, x, tableTabY(), "Table", "Train time table", tableOpen, tableTabHover);
     }
 
-    private void drawHandles(Graphics g) {
-        int x = handleRightEdge();
-        drawHandle(g, x, topHandleY(), activeLabel(), handleActive, Color.black);
-        drawHandle(g, x, bottomHandleY(), otherLabel(), handleInactive, Color.white);
-    }
+    private void drawTab(Graphics g, int x, int y, String shortLabel, String fullLabel,
+            boolean active, boolean hover) {
+        int w = tabWidth(hover);
+        int[] xs = {x, x + w, x + w + tabPoint, x + w, x};
+        int[] ys = {y, y, y + tabHeight / 2, y + tabHeight, y + tabHeight};
 
-    private void drawHandle(Graphics g, int x, int y, String label, Color fill, Color textColour) {
-        int[] xs = {x, x + handleWidth, x + handleWidth + handlePoint, x + handleWidth, x};
-        int[] ys = {y, y, y + handleHeight / 2, y + handleHeight, y + handleHeight};
-        g.setColor(fill);
+        if (active) {
+            g.setColor(tabActiveFill);
+        } else {
+            g.setColor(tabInactiveFill);
+        }
         g.fillPolygon(xs, ys, 5);
         g.setColor(Color.black);
         g.drawPolygon(xs, ys, 5);
 
-        g.setColor(textColour);
+        String label;
+        if (hover) {
+            label = fullLabel;
+        } else {
+            label = shortLabel;
+        }
+
+        if (active) {
+            g.setColor(Color.black);
+        } else {
+            g.setColor(Color.white);
+        }
         g.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        g.drawString(label, x + 12, y + handleHeight / 2 + 5);
+        g.drawString(label, x + 10, y + tabHeight / 2 + 5);
     }
 
-    private boolean inHandle(int mouseX, int mouseY, int handleY) {
-        int x = handleRightEdge();
-        return inRect(mouseX, mouseY, x, handleY, handleWidth + handlePoint, handleHeight);
+    // Generous hit area (as wide as the tab ever gets) so hovering near a
+    // short tab both grows it and is easy to click once it is grown.
+    private boolean inTab(int mouseX, int mouseY, int tabY) {
+        return inRect(mouseX, mouseY, tabX(), tabY, tabFullWidth + tabPoint, tabHeight);
     }
 
-    private boolean isOverAnyHandle(int mouseX, int mouseY) {
-        return inHandle(mouseX, mouseY, topHandleY()) || inHandle(mouseX, mouseY, bottomHandleY());
+    private boolean isOverAnyTab(int mouseX, int mouseY) {
+        return inTab(mouseX, mouseY, trainTabY()) || inTab(mouseX, mouseY, tableTabY());
     }
 
-    // Handles a click on either handle. Returns true if one was hit.
-    // The bottom (inactive) handle switches views.
+    // "Train curr" always opens the train list; "Train time table" always
+    // opens the timetable - whichever tab you click is the view you get.
     public boolean handleTabClick(int mouseX, int mouseY, int panelWidth) {
-        if (inHandle(mouseX, mouseY, bottomHandleY())) {
-            tableOpen = !tableOpen;
+        if (inTab(mouseX, mouseY, trainTabY())) {
+            tableOpen = false;
             return true;
         }
-        return inHandle(mouseX, mouseY, topHandleY()); // active handle: no-op but consume it
+        if (inTab(mouseX, mouseY, tableTabY())) {
+            tableOpen = true;
+            return true;
+        }
+        return false;
     }
 
-    // --- pointer / scroll forwarding (only meaningful for SideTrain) ----
+    // --- pointer / scroll forwarding --------------------------------------
 
     public boolean setPointer(int x, int y) {
-        boolean changed = false;
-        // These need the real panel width; Panel passes screen coords, and the
-        // buttons live near the right edge - recompute against a stored width is
-        // overkill, so we accept the width via the same call used for clicks.
-        // setPointer is called with raw coords; button hover is refreshed in
-        // setButtonHover below.
-        changed |= sideTrain.setPointer(x, y);
-        return changed;
-    }
+        boolean changed = sideTrain.setPointer(x, y);
 
-    // Called from Panel's mouseMoved with the panel width so button hover works.
-    public boolean setButtonHover(int x, int y, int panelWidth) {
-        boolean nh = isHomeClicked(x, y, panelWidth);
-        boolean np = isPauseClicked(x, y, panelWidth);
-        boolean changed = (nh != homeHover) || (np != pauseHover);
-        homeHover = nh;
-        pauseHover = np;
+        boolean trainHover = inTab(x, y, trainTabY());
+        boolean tableHover = inTab(x, y, tableTabY());
+        if (trainHover != trainTabHover) {
+            changed = true;
+        }
+        if (tableHover != tableTabHover) {
+            changed = true;
+        }
+        trainTabHover = trainHover;
+        tableTabHover = tableHover;
         return changed;
     }
 
     public boolean isOverScrollbar(int x, int y) {
-        return !tableOpen && sideTrain.isOverScrollbar(x, y);
+        if (tableOpen) {
+            return false;
+        }
+        return sideTrain.isOverScrollbar(x, y);
     }
 
     public void dragScrollTo(int y) {
-        if (!tableOpen) sideTrain.dragScrollTo(y);
+        if (!tableOpen) {
+            sideTrain.dragScrollTo(y);
+        }
     }
 
     public void scrollBy(int amount) {
-        if (!tableOpen) sideTrain.scrollBy(amount);
+        if (!tableOpen) {
+            sideTrain.scrollBy(amount);
+        }
     }
 
     public void setThumbDragging(boolean dragging) {
         sideTrain.setThumbDragging(dragging);
     }
 
-    // --- helper ---------------------------------------------------------
+    // --- helper -------------------------------------------------------
 
     private boolean inRect(int px, int py, int x, int y, int w, int h) {
         return px >= x && px <= x + w && py >= y && py <= y + h;

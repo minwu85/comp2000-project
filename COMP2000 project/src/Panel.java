@@ -128,9 +128,6 @@ public class Panel extends Frame{
                 if (sidePanel.isPauseClicked(e.getX(), e.getY(), width)) {
                     time.toggle();
                     repaint();
-                } else if (sidePanel.isHomeClicked(e.getX(), e.getY(), width)) {
-                    // HOME button reserved for later; just redraw for now.
-                    repaint();
                 } else if (sidePanel.handleTabClick(e.getX(), e.getY(), width)) {
                     repaint();
                 }
