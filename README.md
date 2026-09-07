@@ -140,10 +140,6 @@ Status labels (plain text): DONE / PARTLY DONE / TODO / IDEA
 ## New ideas that can be added
 
 
-#### Inheritance and polymorphism
-- More vehicle types as subclasses of Vehicles: Bus, Tram, Metro, each with its own speed, capacity and draw style. The paint loop already treats them all as Vehicles, so this shows polymorphism cleanly.
-- A Disaster base class with subclasses (Fire, Breakdown, Collision, Weather), each overriding how long it delays a train and how it looks.
-
 #### Generics
 - A generic Schedule<T> or timed EventQueue<T> for future events (accidents, rush hour, an arrival).
 - Keep using Pair<T, U> for timetable rows (stop + time), and note every place a generic type is used for the worksheet.
@@ -171,10 +167,17 @@ UI and usability
 - Click a line colour in a legend to highlight that line and fade the others.
 - Larger-font toggle.
 
+
+
+## Idea for wk7-13
+
+#### Inheritance and polymorphism
+- More vehicle types as subclasses of Vehicles: Bus, Tram, Metro, each with its own speed, capacity and draw style. The paint loop already treats them all as Vehicles, so this shows polymorphism cleanly.
+- A Disaster base class with subclasses (Fire, Breakdown, Collision, Weather), each overriding how long it delays a train and how it looks.
+
 #### Testing and logbook
 - JUnit tests for Routes.getNextTowards, Vehicles.moveVehicle (including the bounce at the end of the line), and Time formatting.
 - Move station and route data into a text or JSON file instead of hardcoding it in Stops.java and Routes.java.
-
 
 ### Different types of accident for train delay (idea list)
 
