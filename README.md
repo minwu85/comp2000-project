@@ -5,14 +5,14 @@ The team name: OOPP The GOOP
 The team members: Ashton, Luke, Daniel, Minying, Amanda
 
 ### Project Goal
-Project goal is to have train simulation 
+The project goal is to build a train simulation.
 
 ## Getting Started
 
-How to start simulated
+How to start the simulation:
 
-1. run the code
-2. press space to start simulated
+1. Run the code (run `Panel.java`).
+2. Press space to start the simulation.
 
 ## How the classes link
 
@@ -88,76 +88,105 @@ Meanwhile, the compiled output files will be generated in the `bin` folder by de
 
 
 
-## Goal to be done
+## Project status and next steps
 
-Some ideas
+Status labels (plain text): DONE / PARTLY DONE / TODO / IDEA
 
-1. topPanel - done
-- add a side bar/panel display on top of screen, this side bar/panel will display the time, 
-- add and finish pause and continue buttons
-        
-2. left panel - need more improve
-- then add a left side bar/panel display on the left of the screen
-- listing the number of passengers and the number of passengers on the train 
-- eg: g.drawString("Passengers: " + passengers.size(), 40, 190);
-- g.drawString("On Train: " + train1.getPassengers().size(), 40, 210);
-- add a scrow panel 
+### Core features
 
-3. table of train line - need to wait until the station name to be done
-- set a point for the train 
-- eg Start point for t1, and when it reach to the end
-- eg link with the left panel display the time when the train is at a certain station
+1. Top panel - DONE
+   - Top bar shows the simulated clock (12-hour, AM/PM) and the date.
+   - Pause / continue button (also toggled with space).
+   - Note: a HOME button was added and then removed; it can come back once it has a purpose.
 
-4. Time issues 
-- which need to link with the train time table after 3 being done
-- Fix time display to show the time in the format of HH:MM
+2. Left panel (SideTrain) - PARTLY DONE
+   - Left panel with one card per train: line, current stop, next stop, time and ETA.
+   - Scrolling list with a hover scrollbar.
+   - Still to do: show passenger counts (number waiting, number on each train).
 
-5. accident issues - link to the 3. table 
-- for later accident time later
-- eg T1 accident at Station 3, result a stop of the train for 5 minutes, and then continue to move after 5 minutes
-- or a replaceable bus or other solution for the passage
-    - bus (alot work which new route, panel need to design, splite from train) 
-    - metro
-        
-6. Random passage - link to the 3. time table
-- Which set at poit eg 9am alot of students, worker
-- add graph? table one the flowchart of passage max/min?
+3. Train time table (SideTable) - DONE
+   - Separate wide view with one row per train (line, current stop, time, next stop, ETA).
+   - Switched with the two tabs on the right ("Train current" / "Train table").
+   - "Busiest right now" footer.
+   - Still to do: a real per-stop schedule instead of a flat "+3 min between stops" estimate.
 
-7. Passage - type with colour  
-- student: oranger
-- work: ... (need to continue)
-- add an table at top of side paneel top of t1 display
-- but it can be really colour full - mes
-    
-8. Exceptions - need to be added
-- 
+4. Time - DONE
+   - 1 real second = 5 ticks; trains step once per real second.
+   - Each real second the clock jumps about 5 simulated minutes, with a small random wobble so the seconds look realistic.
+   - Format is HH:MM:SS AM/PM plus weekday and date.
 
-9. instrucstion guide 
-- open page/main page 
-- instrucstion page, explain what is the game for
-- link to side panel - which can be open later
-    - button display effect
+5. Accidents / delays - TODO
+   - Example: T1 has an accident at a station, stops for 5 minutes, then continues.
+   - Options: a delay timer on the train, or a replacement bus / metro on a new route.
 
-10. stop clickable
-- let stop to be click in the later 
-- display num passage, next train infor 
- 
+6. Random passengers - PARTLY DONE
+   - A passenger already picks a random start and end stop on one line.
+   - Still to do: spawn more passengers at rush hour (e.g. 8-9am students and workers), and show min/max on a small graph or table.
 
+7. Passenger types with colour - TODO
+   - student = orange, worker = another colour, etc.
+   - Small colour key at the top of the side panel.
 
-**different type of accident for train delay**
-(feature could be add later on)
+8. Exceptions - TODO
+   - Add try/catch and at least one custom exception class (see ideas below).
+
+9. Instruction / help screen - TODO
+   - A start screen or overlay explaining what the simulation is and the controls.
+   - Could open from a button on the side panel.
+
+10. Clickable stations - TODO
+    - Click a station to see how many passengers are waiting and the next train.
+
+### New ideas
+
+Grouped so they also help with the worksheet (design, inheritance, polymorphism, generics, exceptions, testing).
+
+Inheritance and polymorphism
+- More vehicle types as subclasses of Vehicles: Bus, Tram, Metro, each with its own speed, capacity and draw style. The paint loop already treats them all as Vehicles, so this shows polymorphism cleanly.
+- A Disaster base class with subclasses (Fire, Breakdown, Collision, Weather), each overriding how long it delays a train and how it looks.
+
+Generics
+- A generic Schedule<T> or timed EventQueue<T> for future events (accidents, rush hour, an arrival).
+- Keep using Pair<T, U> for timetable rows (stop + time), and note every place a generic type is used for the worksheet.
+
+Exceptions
+- Custom exceptions: RouteNotFoundException (stop not on the line), TrainFullException (boarding a full train), thrown where they happen and caught in the tick loop so the simulation keeps running.
+- Wrap the tick loop in try/catch so one bad frame does not crash the window.
+
+Collections
+- A Map<String, Train> for looking trains up by name, or Map<Stops, List<Passenger>> for who is waiting at each station.
+- A queue of passengers at each station (first in, first on).
+
+Simulation depth
+- Enforce train capacity: a full train skips boarding and passengers wait for the next one.
+- Use Stops.checkCapacity() so busy stations take longer to board.
+- Statistics view: passengers delivered, average wait time, on-time percentage.
+- Rush-hour spawn curve tied to the clock.
+- Speed control (1x / 2x / 4x) next to pause.
+- Day / night background tint from the simulated clock.
+
+UI and usability
+- Zoom the map with the mouse wheel when the pointer is over the map (the wheel currently only scrolls the train list).
+- Click a line colour in a legend to highlight that line and fade the others.
+- Larger-font toggle.
+
+Testing and logbook
+- JUnit tests for Routes.getNextTowards, Vehicles.moveVehicle (including the bounce at the end of the line), and Time formatting.
+- Move station and route data into a text or JSON file instead of hardcoding it in Stops.java and Routes.java.
+
+### Different types of accident for train delay (idea list)
+
 - fire
 - rain
 - earthquake
-- someone died
+- a fatality on the line
 - train breakdown
 - train collision
 - train derailment
-         
-### List to be later improve/add
 
-1. looks of 
-- passager (probably change another way to display) - done
-- train (image?), sidepanel 
-2. bus (?can be added once train broke)
-3. Weather which link to accident section
+### Later / nice to have
+
+- Passenger look - DONE (drawn as an orange dot on the train); could still be improved.
+- Train images instead of coloured rectangles.
+- Weather effects linked to the accident system.
+- Bus that can be added when a train breaks down.

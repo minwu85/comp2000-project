@@ -7,7 +7,12 @@
 **GitHub repo URL:**
 
 ---
+Complete the attached rubric and submit it.  NOTE:  Your github URL must not be your team's URL.  You must have forked it at some point to make your own separate repsitory URL.  You should also submit a single file with your logbook in it.  Do not zip your files, submit three (exactly three) files:
 
+    completed worksheet
+    a design diagram (UML style) as a pdf file
+    logbook
+---
 ## 1. Version Control
 
 **1.1.** Paste the first 10 lines of the output of `git log --graph --oneline --all` from your repository:
