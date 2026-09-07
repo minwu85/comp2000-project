@@ -4,8 +4,8 @@ import java.awt.Graphics;
 
 // The left panel: a header ("Train current" + clock) above a scrolling list
 // of train cards, with a hover scrollbar for when there are more trains than
-// fit. When another view (the timetable) is open it draws itself dark grey
-// instead, via draw(..., dimmed = true).
+// fit. Only drawn while it is the view the user is looking at, so its body is
+// the same light grey as the active tab.
 public class SideTrain {
 
     private final int width;   // panel width in pixels
@@ -28,8 +28,7 @@ public class SideTrain {
     boolean thumbHover = false;
     boolean thumbDragging = false;
 
-    Color panelBody = new Color(120, 120, 120);
-    Color dimBody = new Color(70, 70, 70);
+    Color panelBody = new Color(225, 225, 225); // light grey, matches the active tab
     Color cardBackground = new Color(248, 248, 248);
     Color cardBorder = new Color(90, 90, 90);
     Color scrollTrack = new Color(80, 80, 80);
@@ -42,22 +41,8 @@ public class SideTrain {
         this.top = top;
     }
 
-    public void draw(Graphics g, int panelHeight, Vehicles[] trains, boolean dimmed, Time time) {
+    public void draw(Graphics g, int panelHeight, Vehicles[] trains, Time time) {
         int fullHeight = panelHeight - top;
-
-        if (dimmed) {
-            // Timetable is open: show this panel as a dark grey stub.
-            g.setColor(dimBody);
-            g.fillRect(0, top, width, fullHeight);
-            g.setColor(new Color(155, 155, 155));
-            g.setFont(new Font("SansSerif", Font.BOLD, 13));
-            int y = top + 34;
-            for (Vehicles train : trains) {
-                g.drawString(train.getName(), 16, y);
-                y += 22;
-            }
-            return;
-        }
 
         g.setColor(panelBody);
         g.fillRect(0, top, width, fullHeight);

@@ -4,10 +4,10 @@ import java.awt.Graphics;
 
 // Coordinates the fixed UI: the top bar (Time|Day box, pause button) and the
 // two left views - SideTrain (list of trains) and SideTable (timetable).
-// Two chevron tabs on the right edge switch between the views: "Train curr"
-// always sits on top, "Train time table" always sits below it, so their
-// positions never swap - only which one is highlighted as active changes.
-// While the timetable is open, SideTrain is drawn dark grey.
+// Only one view is drawn at a time. Two chevron tabs on the right edge switch
+// between them: "Train current" always sits on top, "Train table" always sits
+// below it, so their positions never swap - only the highlight colour and the
+// hovered width change.
 public class SidePanel {
 
     int topHeight = 70;
@@ -38,7 +38,7 @@ public class SidePanel {
     Color tabInactiveFill = new Color(90, 90, 90);
 
     SideTrain sideTrain = new SideTrain(leftWidth, topHeight);
-    SideTable sideTable = new SideTable(leftWidth, topHeight, tableWidth);
+    SideTable sideTable = new SideTable(0, topHeight, tableWidth); // fills the whole left area when open
 
     public int getTopHeight() {
         return topHeight;
@@ -75,10 +75,9 @@ public class SidePanel {
         drawTopBar(g, panelWidth, time);
 
         if (tableOpen) {
-            sideTrain.draw(g, panelHeight, trains, true, time); // dark grey stub
             sideTable.draw(g, panelHeight, trains, time);
         } else {
-            sideTrain.draw(g, panelHeight, trains, false, time);
+            sideTrain.draw(g, panelHeight, trains, time);
         }
 
         drawTabs(g);

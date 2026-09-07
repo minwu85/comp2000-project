@@ -30,12 +30,12 @@ public class SideTable {
         this.top = top;
         this.rightX = rightX;
 
-        this.colTrain = leftX + 20;
-        this.colLine = leftX + 80;
-        this.colCurrent = leftX + 170;
-        this.colTime = leftX + 330;
-        this.colNext = leftX + 400;
-        this.colEta = leftX + 520;
+        this.colTrain = leftX + 24;
+        this.colLine = leftX + 110;
+        this.colCurrent = leftX + 250;
+        this.colTime = leftX + 470;
+        this.colNext = leftX + 590;
+        this.colEta = leftX + 820;
     }
 
     public void draw(Graphics g, int panelHeight, Vehicles[] trains, Time time) {

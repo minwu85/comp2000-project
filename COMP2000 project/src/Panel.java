@@ -103,16 +103,29 @@ public class Panel extends Frame{
         // MouseListener + MouseMotionListener + MouseWheelListener, so one object is enough.
         // Clicking the button toggles the clock; dragging the map (not the side panels) pans it;
         // the wheel and the left-bar scrollbar scroll the train list.
+        //
+        // mx()/my() subtract the window insets: the whole scene is drawn at
+        // (insets.left, insets.top) in update(), but mouse events arrive in
+        // frame coordinates, so without this the hit boxes sit a title-bar
+        // height too high.
         MouseAdapter mouseHandler = new MouseAdapter() {
+            private int mx(MouseEvent e) {
+                return e.getX() - insets.left;
+            }
+
+            private int my(MouseEvent e) {
+                return e.getY() - insets.top;
+            }
+
             public void mousePressed(MouseEvent e) {
-                if (sidePanel.isOverScrollbar(e.getX(), e.getY())) {
+                if (sidePanel.isOverScrollbar(mx(e), my(e))) {
                     draggingScrollbar = true;
                     sidePanel.setThumbDragging(true);
-                    sidePanel.dragScrollTo(e.getY());
+                    sidePanel.dragScrollTo(my(e));
                     repaint();
-                } else if (!sidePanel.isOverPanel(e.getX(), e.getY(), width, height)) {
-                    dragStartX = e.getX() - panOffsetX;
-                    dragStartY = e.getY() - panOffsetY;
+                } else if (!sidePanel.isOverPanel(mx(e), my(e), width, height)) {
+                    dragStartX = mx(e) - panOffsetX;
+                    dragStartY = my(e) - panOffsetY;
                     dragging = true;
                 }
             }
@@ -125,18 +138,18 @@ public class Panel extends Frame{
             }
 
             public void mouseClicked(MouseEvent e) {
-                if (sidePanel.isPauseClicked(e.getX(), e.getY(), width)) {
+                if (sidePanel.isPauseClicked(mx(e), my(e), width)) {
                     time.toggle();
                     repaint();
-                } else if (sidePanel.handleTabClick(e.getX(), e.getY(), width)) {
+                } else if (sidePanel.handleTabClick(mx(e), my(e), width)) {
                     repaint();
                 }
             }
 
             public void mouseMoved(MouseEvent e) {
                 // Light up the scrollbar / buttons when the mouse is near them.
-                boolean changed = sidePanel.setPointer(e.getX(), e.getY());
-                changed |= sidePanel.setButtonHover(e.getX(), e.getY(), width);
+                boolean changed = sidePanel.setPointer(mx(e), my(e));
+                changed |= sidePanel.setButtonHover(mx(e), my(e), width);
                 if (changed) {
                     repaint();
                 }
@@ -152,18 +165,18 @@ public class Panel extends Frame{
 
             public void mouseDragged(MouseEvent e) {
                 if (draggingScrollbar) {
-                    sidePanel.dragScrollTo(e.getY());
+                    sidePanel.dragScrollTo(my(e));
                     repaint();
                 } else if (dragging) {
-                    panOffsetX = e.getX() - dragStartX;
-                    panOffsetY = e.getY() - dragStartY;
+                    panOffsetX = mx(e) - dragStartX;
+                    panOffsetY = my(e) - dragStartY;
                     repaint();
                 }
             }
 
             public void mouseWheelMoved(MouseWheelEvent e) {
                 // Scroll the train list when the pointer is over the left bar.
-                if (e.getX() < sidePanel.getLeftWidth()) {
+                if (mx(e) < sidePanel.getLeftWidth()) {
                     sidePanel.scrollBy(e.getWheelRotation() * 40);
                     repaint();
                 }
