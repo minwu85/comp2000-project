@@ -137,42 +137,44 @@ Status labels (plain text): DONE / PARTLY DONE / TODO / IDEA
 10. Clickable stations - TODO
     - Click a station to see how many passengers are waiting and the next train.
 
-### New ideas
+## New ideas that can be added
 
-Grouped so they also help with the worksheet (design, inheritance, polymorphism, generics, exceptions, testing).
 
-Inheritance and polymorphism
+#### Inheritance and polymorphism
 - More vehicle types as subclasses of Vehicles: Bus, Tram, Metro, each with its own speed, capacity and draw style. The paint loop already treats them all as Vehicles, so this shows polymorphism cleanly.
 - A Disaster base class with subclasses (Fire, Breakdown, Collision, Weather), each overriding how long it delays a train and how it looks.
 
-Generics
+#### Generics
 - A generic Schedule<T> or timed EventQueue<T> for future events (accidents, rush hour, an arrival).
 - Keep using Pair<T, U> for timetable rows (stop + time), and note every place a generic type is used for the worksheet.
 
-Exceptions
+#### Exceptions
 - Custom exceptions: RouteNotFoundException (stop not on the line), TrainFullException (boarding a full train), thrown where they happen and caught in the tick loop so the simulation keeps running.
 - Wrap the tick loop in try/catch so one bad frame does not crash the window.
 
-Collections
+#### Collections
 - A Map<String, Train> for looking trains up by name, or Map<Stops, List<Passenger>> for who is waiting at each station.
 - A queue of passengers at each station (first in, first on).
 
-Simulation depth
+### UI Design 
+
+#### Simulation depth
 - Enforce train capacity: a full train skips boarding and passengers wait for the next one.
 - Use Stops.checkCapacity() so busy stations take longer to board.
 - Statistics view: passengers delivered, average wait time, on-time percentage.
 - Rush-hour spawn curve tied to the clock.
 - Speed control (1x / 2x / 4x) next to pause.
-- Day / night background tint from the simulated clock.
+- Day/night background tint from the simulated clock.
 
 UI and usability
 - Zoom the map with the mouse wheel when the pointer is over the map (the wheel currently only scrolls the train list).
 - Click a line colour in a legend to highlight that line and fade the others.
 - Larger-font toggle.
 
-Testing and logbook
+#### Testing and logbook
 - JUnit tests for Routes.getNextTowards, Vehicles.moveVehicle (including the bounce at the end of the line), and Time formatting.
 - Move station and route data into a text or JSON file instead of hardcoding it in Stops.java and Routes.java.
+
 
 ### Different types of accident for train delay (idea list)
 
