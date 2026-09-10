@@ -25,11 +25,11 @@ public class Time {
     private static final int STEP_SECONDS = 5 * 60;
 
     private static final DateTimeFormatter CLOCK_FORMAT =
-            DateTimeFormatter.ofPattern("hh:mm:ss a", Locale.ENGLISH); // e.g. 06:05:07 AM
+    DateTimeFormatter.ofPattern("hh:mm:ss a", Locale.ENGLISH); // e.g. 06:05:07 AM
     private static final DateTimeFormatter SHORT_CLOCK_FORMAT =
-            DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH); // e.g. 06:05 AM
+    DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH); // e.g. 06:05 AM
     private static final DateTimeFormatter DATE_FORMAT =
-            DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", Locale.ENGLISH); // Monday, 1 September 2029
+    DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", Locale.ENGLISH); // Monday, 1 September 2029
 
     private final Random random = new Random();
 
