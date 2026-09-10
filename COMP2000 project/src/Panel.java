@@ -417,6 +417,8 @@ public class Panel extends Frame{
         // map never moves them.
         sidePanel.display(screenGraphics, width, height, time,
                 new Vehicles[]{train1, train2, train3, train4});
+                
+            Passenger.spawnPassengers(time);
 
     }
 
