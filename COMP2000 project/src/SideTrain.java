@@ -12,7 +12,7 @@ public class SideTrain {
     private final int top;     // y where the panel starts (below the top bar)
 
     int headerHeight = 56;    // title + clock line, above the card list
-    int cardHeight = 70;
+    int cardHeight = 88;      // tall enough for 4 info lines
     int cardGap = 14;
     int cardSpacing = cardHeight + cardGap;
 
@@ -196,6 +196,8 @@ public class SideTrain {
         Pair<String, String> current = new Pair<>("Current", train.getCurStop().getName());
         Pair<String, String> upcoming = new Pair<>("Next", nextName);
 
+        int aboard = train.getPassengers().size();
+
         int textX = cardX + 18;
         g.setColor(Color.black);
         g.setFont(new Font("SansSerif", Font.BOLD, 14));
@@ -206,6 +208,7 @@ public class SideTrain {
                 + "   Time: " + time.clockAt(0), textX, cardY + 40);
         g.drawString(upcoming.getFirst() + ": " + upcoming.getSecond()
                 + "   ETA: " + time.clockAt(3), textX, cardY + 58);
+        g.drawString("Passengers on board: " + aboard, textX, cardY + 76);
     }
 
     // Colour each train shares with its line on the map. Shared with SideTable.

@@ -104,6 +104,12 @@ public class SidePanel {
         g.setFont(new Font("SansSerif", Font.PLAIN, 13));
         g.drawString(time.getDateText(), boxX + 14, boxY + 45);
 
+        if (time.isEnded()) {
+            g.setColor(new Color(255, 120, 120));
+            g.setFont(new Font("SansSerif", Font.BOLD, 16));
+            g.drawString("SERVICE ENDED 12:00 PM", boxX + boxW + 24, boxY + 34);
+        }
+
         drawPauseButton(g, panelWidth, time.isRunning());
     }
 

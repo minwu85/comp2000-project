@@ -74,17 +74,26 @@ public class Panel extends Frame{
         
         time = new Time(new ActionListener() {
             public void actionPerformed(ActionEvent e ) {
-                time.advance();
-                if (time.isOnSecond()) {
-                    train1.moveVehicle();
-                    train2.moveVehicle();
-                    train3.moveVehicle();
-                    train4.moveVehicle();
-                    pass1.checkBoarding(train1.getCurStop(), train1.onBoard);
-                    pass1.checkBoarding(train2.getCurStop(), train2.onBoard);
-                    pass1.checkBoarding(train3.getCurStop(), train3.onBoard);
-                    pass1.checkBoarding(train4.getCurStop(), train4.onBoard);
-
+                // The whole tick is wrapped so that the end of the service
+                // window (or any bad clock state) stops the simulation cleanly
+                // instead of throwing out of the Swing timer thread.
+                try {
+                    time.advance();
+                    if (time.isOnSecond()) {
+                        train1.moveVehicle();
+                        train2.moveVehicle();
+                        train3.moveVehicle();
+                        train4.moveVehicle();
+                        pass1.checkBoarding(train1.getCurStop(), train1.onBoard);
+                        pass1.checkBoarding(train2.getCurStop(), train2.onBoard);
+                        pass1.checkBoarding(train3.getCurStop(), train3.onBoard);
+                        pass1.checkBoarding(train4.getCurStop(), train4.onBoard);
+                    }
+                } catch (SimulationTimeException ste) {
+                    // Trains run 06:00 AM - 12:00 PM only. The clock is already
+                    // frozen and stopped inside Time; just report it and let the
+                    // final repaint show the 12:00 PM state.
+                    System.out.println(ste.getMessage());
                 }
                 repaint();
             }
