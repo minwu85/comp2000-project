@@ -71,7 +71,7 @@ public class SideTrain {
         drawScrollbar(g, listTop);
     }
 
-    // --- scrolling ----------------------------------------------------------
+    // Scrolling
 
     private int maxScroll() {
         return Math.max(0, contentHeight - viewHeight);
@@ -168,7 +168,7 @@ public class SideTrain {
         g.drawRect(trackX, ty, barW - 1, thumbH - 1);
     }
 
-    // --- one train card, styled to match SideTable's rows ------------------
+    // One train card, styled to match SideTable's rows
 
     private void drawTrainCard(Graphics g, int cardY, Vehicles train, Time time) {
         int cardX = 10;
@@ -199,10 +199,16 @@ public class SideTrain {
         int aboard = train.getPassengers().size();
 
         int textX = cardX + 18;
-        g.setColor(Color.black);
         g.setFont(new Font("SansSerif", Font.BOLD, 14));
-        g.drawString(train.getName() + " - " + train.route.name, textX, cardY + 20);
+        if (train.isDelayed()) {
+            g.setColor(new Color(200, 30, 30));
+            g.drawString(train.getName() + " - " + train.route.name + " (DELAYED)", textX, cardY + 20);
+        } else {
+            g.setColor(Color.black);
+            g.drawString(train.getName() + " - " + train.route.name, textX, cardY + 20);
+        }
 
+        g.setColor(Color.black);
         g.setFont(new Font("SansSerif", Font.PLAIN, 11));
         g.drawString(current.getFirst() + ": " + current.getSecond()
                 + "   Time: " + time.clockAt(0), textX, cardY + 40);

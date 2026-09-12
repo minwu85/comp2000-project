@@ -69,7 +69,7 @@ public class SidePanel {
         return isOverAnyTab(x, y);
     }
 
-    // --- drawing ----------------------------------------------------------
+    // Drawing
 
     public void display(Graphics g, int panelWidth, int panelHeight, Time time, Vehicles[] trains) {
         drawTopBar(g, panelWidth, time);
@@ -113,7 +113,7 @@ public class SidePanel {
         drawPauseButton(g, panelWidth, time.isRunning());
     }
 
-    // --- top-bar pause button --------------------------------------------
+    // Top-bar pause button
 
     private int pauseX(int panelWidth) {
         return panelWidth - pauseSize - pauseMargin;
@@ -158,7 +158,7 @@ public class SidePanel {
         }
     }
 
-    // --- view-switch tabs -------------------------------------------------
+    // View-switch tabs
 
     private int tabX() {
         if (tableOpen) {
@@ -224,7 +224,7 @@ public class SidePanel {
     }
 
     // "Train curr" always opens the train list; "Train time table" always
-    // opens the timetable - whichever tab you click is the view you get.
+    // opens the timetable - each tab always switches to its own view.
     public boolean handleTabClick(int mouseX, int mouseY, int panelWidth) {
         if (inTab(mouseX, mouseY, trainTabY())) {
             tableOpen = false;
@@ -237,7 +237,7 @@ public class SidePanel {
         return false;
     }
 
-    // --- pointer / scroll forwarding --------------------------------------
+    // Pointer / scroll forwarding
 
     public boolean setPointer(int x, int y) {
         boolean changed = sideTrain.setPointer(x, y);
@@ -278,7 +278,7 @@ public class SidePanel {
         sideTrain.setThumbDragging(dragging);
     }
 
-    // --- helper -------------------------------------------------------
+    // Helper
 
     private boolean inRect(int px, int py, int x, int y, int w, int h) {
         return px >= x && px <= x + w && py >= y && py <= y + h;

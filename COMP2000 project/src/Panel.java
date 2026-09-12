@@ -9,6 +9,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Panel extends Frame{
 
@@ -28,6 +29,10 @@ public class Panel extends Frame{
     
     Passenger pass1 = Passenger.pass1();
     ArrayList<Passenger> passengers = new ArrayList<>();
+
+    // A handful of random accidents scheduled across the service, so trains
+    // do not all run on a perfectly fixed timetable.
+    EventQueue<SimulationEvent> accidents = new EventQueue<>();
 
     Image dbImage;
     Graphics dbGraphics;
@@ -69,9 +74,10 @@ public class Panel extends Frame{
         requestFocusInWindow();
 
         passengers.add(pass1);
+        scheduleRandomAccidents();
 
         // Every 5th tick (1 real second) moves the train and checks boarding.
-        
+
         time = new Time(new ActionListener() {
             public void actionPerformed(ActionEvent e ) {
                 // The whole tick is wrapped so that the end of the service
@@ -80,6 +86,12 @@ public class Panel extends Frame{
                 try {
                     time.advance();
                     if (time.isOnSecond()) {
+                        long step = time.ticks / 5;
+                        Vehicles[] allTrains = {train1, train2, train3, train4};
+                        while (accidents.hasDueEvent(step)) {
+                            accidents.nextEvent().execute(allTrains);
+                        }
+
                         train1.moveVehicle();
                         train2.moveVehicle();
                         train3.moveVehicle();
@@ -194,6 +206,22 @@ public class Panel extends Frame{
         addMouseListener(mouseHandler);
         addMouseMotionListener(mouseHandler);
         addMouseWheelListener(mouseHandler);
+    }
+
+    // Picks 2-3 random accidents across the run: a random train, a random
+    // step to trigger on, and a random number of steps it gets stuck for.
+    // The tick loop executes each one from accidents once its step is due.
+    private void scheduleRandomAccidents() {
+        Random random = new Random();
+        Train[] allTrains = {train1, train2, train3, train4};
+        int accidentCount = 2 + random.nextInt(2);
+
+        for (int i = 0; i < accidentCount; i++) {
+            Train chosen = allTrains[random.nextInt(allTrains.length)];
+            long step = 10 + random.nextInt(50);
+            int delaySteps = 3 + random.nextInt(6);
+            accidents.add(new AccidentEvent(step, chosen.getName(), delaySteps));
+        }
     }
 
     // Draws to an off-screen image first, then blits it in one go, so the

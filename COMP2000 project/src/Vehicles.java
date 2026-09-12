@@ -17,6 +17,8 @@ public class Vehicles {
     int width = 30;
     int height = 16;
 
+    int delayStepsRemaining = 0; // set by a scheduled AccidentEvent, counted down in moveVehicle()
+
     public Vehicles(){
         
     }
@@ -65,8 +67,23 @@ public class Vehicles {
        // 
     }
 
+    // Called by an AccidentEvent: stops this vehicle at its current stop for
+    // the given number of steps before it moves again.
+    public void delay(int steps){
+        delayStepsRemaining = delayStepsRemaining + steps;
+    }
+
+    public boolean isDelayed(){
+        return delayStepsRemaining > 0;
+    }
+
     // Steps forward one stop; reverses direction once it reaches the end of the line.
+    // Stays put while a delay set by delay(...) is still counting down.
     public void moveVehicle(){
+        if(delayStepsRemaining > 0){
+            delayStepsRemaining = delayStepsRemaining - 1;
+            return;
+        }
         int lastIndex = route.stations.size() - 1;
         if(stationIndex < lastIndex){
             stationIndex = stationIndex + 1;
@@ -87,7 +104,11 @@ public class Vehicles {
 
         g.setColor(new Color(red, green, blue)); // solid red
         g.fillRect(x, y, width, height);
-        g.setColor(Color.black);
+        if(isDelayed()){
+            g.setColor(Color.red);
+        } else {
+            g.setColor(Color.black);
+        }
         g.drawRect(x, y, width, height);
 
         g.setFont(new Font("SansSerif", Font.BOLD, 12));
