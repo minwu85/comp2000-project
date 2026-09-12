@@ -162,6 +162,8 @@ public class Panel extends Frame{
                 if (sidePanel.isPauseClicked(mx(e), my(e), width)) {
                     time.toggle();
                     repaint();
+                } else if (sidePanel.isHomeClicked(mx(e), my(e), width)) {
+                    goHome();
                 } else if (sidePanel.handleTabClick(mx(e), my(e), width)) {
                     repaint();
                 }
@@ -222,6 +224,15 @@ public class Panel extends Frame{
             int delaySteps = 3 + random.nextInt(6);
             accidents.add(new AccidentEvent(step, chosen.getName(), delaySteps));
         }
+    }
+
+    // Pauses the clock, closes the simulation window and returns to the home screen.
+    private void goHome() {
+        if (time.isRunning()) {
+            time.toggle();
+        }
+        dispose();
+        new Home();
     }
 
     // Draws to an off-screen image first, then blits it in one go, so the

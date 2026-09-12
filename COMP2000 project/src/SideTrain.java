@@ -174,6 +174,10 @@ public class SideTrain {
         int cardX = 10;
         int cardWidth = width - 20;
 
+        if (train.isDelayed()) {
+            HazardStripe.draw(g, cardX, cardY, cardWidth, cardHeight, 6);
+        }
+
         g.setColor(cardBackground);
         g.fillRoundRect(cardX, cardY, cardWidth, cardHeight, 10, 10);
         g.setColor(cardBorder);

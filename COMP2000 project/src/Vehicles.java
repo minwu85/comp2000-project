@@ -99,6 +99,10 @@ public class Vehicles {
         int x = curStop.x-width/2;
         int y = curStop.y-height/2;
 
+        if(isDelayed()){
+            HazardStripe.draw(g, x, y, width, height, 4);
+        }
+
         Graphics2D g2d=(Graphics2D) g;
         g2d.setStroke(new BasicStroke(2));
 

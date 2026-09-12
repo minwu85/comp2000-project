@@ -17,8 +17,11 @@ public class SidePanel {
     int pauseSize = 56;
     int pauseMargin = 20;
 
+    int homeSize = 44;
+    int homeGap = 10; // gap between the home button and the pause button
+
     // Tab sizing: snug by default, a little wider while the mouse hovers over it.
-    int tabShortWidth = 100; 
+    int tabShortWidth = 100;
     int tabFullWidth = 135; //mouse over
     int tabHeight = 40;
     int tabPoint = 14;   // length of the pointed tip
@@ -28,6 +31,7 @@ public class SidePanel {
     boolean trainTabHover = false;
     boolean tableTabHover = false;
     boolean pauseHover = false;
+    boolean homeHover = false;
 
     Color darkBar = new Color(45, 45, 45);
     Color accentLine = new Color(30, 144, 255);
@@ -110,10 +114,11 @@ public class SidePanel {
             g.drawString("SERVICE ENDED 12:00 PM", boxX + boxW + 24, boxY + 34);
         }
 
+        drawHomeButton(g, panelWidth);
         drawPauseButton(g, panelWidth, time.isRunning());
     }
 
-    // Top-bar pause button
+    // Top-bar pause and home buttons
 
     private int pauseX(int panelWidth) {
         return panelWidth - pauseSize - pauseMargin;
@@ -123,15 +128,57 @@ public class SidePanel {
         return (topHeight - pauseSize) / 2;
     }
 
+    private int homeX(int panelWidth) {
+        return pauseX(panelWidth) - homeSize - homeGap;
+    }
+
+    private int homeY() {
+        return (topHeight - homeSize) / 2;
+    }
+
     public boolean isPauseClicked(int mouseX, int mouseY, int panelWidth) {
         return inRect(mouseX, mouseY, pauseX(panelWidth), pauseY(), pauseSize, pauseSize);
     }
 
+    public boolean isHomeClicked(int mouseX, int mouseY, int panelWidth) {
+        return inRect(mouseX, mouseY, homeX(panelWidth), homeY(), homeSize, homeSize);
+    }
+
     public boolean setButtonHover(int mouseX, int mouseY, int panelWidth) {
-        boolean nowHover = isPauseClicked(mouseX, mouseY, panelWidth);
-        boolean changed = nowHover != pauseHover;
-        pauseHover = nowHover;
+        boolean nowPauseHover = isPauseClicked(mouseX, mouseY, panelWidth);
+        boolean nowHomeHover = isHomeClicked(mouseX, mouseY, panelWidth);
+        boolean changed = (nowPauseHover != pauseHover) || (nowHomeHover != homeHover);
+        pauseHover = nowPauseHover;
+        homeHover = nowHomeHover;
         return changed;
+    }
+
+    // Simple house icon: a roof triangle over a body, with a door cut-out.
+    private void drawHomeButton(Graphics g, int panelWidth) {
+        int x = homeX(panelWidth);
+        int y = homeY();
+
+        if (homeHover) {
+            g.setColor(buttonHoverFill);
+        } else {
+            g.setColor(buttonFill);
+        }
+        g.fillRect(x, y, homeSize, homeSize);
+        g.setColor(Color.black);
+        g.drawRect(x, y, homeSize, homeSize);
+
+        int[] roofX = {x + 6, x + homeSize / 2, x + homeSize - 6};
+        int[] roofY = {y + 22, y + 8, y + 22};
+        g.setColor(new Color(60, 60, 60));
+        g.fillPolygon(roofX, roofY, 3);
+        g.fillRect(x + 11, y + 22, homeSize - 22, 14);
+
+        if (homeHover) {
+            g.setColor(buttonHoverFill);
+        } else {
+            g.setColor(buttonFill);
+        }
+        g.fillRect(x + homeSize / 2 - 3, y + 27, 6, 9); // door
     }
 
     private void drawPauseButton(Graphics g, int panelWidth, boolean running) {
