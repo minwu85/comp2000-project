@@ -1,29 +1,21 @@
 import java.util.ArrayList;
-import java.util.Random;
 
 public class Passenger {
-    // Walks a passenger from start to end, one stop at a time along a route.
-    // Sets a "reached destination" message once curStop equals end.
+    // A commuter with a fixed random start and end stop on one line.
+    // checkBoarding compares a train's current stop against start/end, so
+    // the passenger boards and alights without needing its own position.
 
     private String name;
     private Stops start;
     private Stops end;
-    private Stops curStop;
-    private String message;
 
     public Passenger(String name) {
-        
         this.name = name;
         this.start = startPoint(allRoutes()).get(0);
-        this.end = startPoint(allRoutes()).get(1);;
-        this.curStop = start;
-
-
-        //Create random end and start point assignment 
-        //Addtional have a random is changing trains boolean value 
-        // if true give the passanger a new destitnation and set current stop to start location 
+        this.end = startPoint(allRoutes()).get(1);
     }
-        public static ArrayList<Routes> allRoutes(){
+
+    public static ArrayList<Routes> allRoutes(){
         // adds all the trainlines into one array for easy accsess
         ArrayList<Routes> totalRoutes = new ArrayList<>();
         totalRoutes.add(Routes.redLine());
@@ -32,30 +24,32 @@ public class Passenger {
         totalRoutes.add(Routes.greenLine());
         return totalRoutes;
     }
+
     public static void spawnPassengers(Time time){
         //Spawns 100 Passangers every 60 tick or 30 in gmae mintues.
         if(time.ticks % 60 == 0){
             for(int i =0;i<100;i++){
-                startPoint(allRoutes()); 
+                startPoint(allRoutes());
             }
         }
-        //To do 
-        // Make a function called count passengers which counts total passengers in scene 
-        //Name passengers so that it goes Passenger1, Passenger2 ect 
+        //To do
+        // Make a function called count passengers which counts total passengers in scene
+        //Name passengers so that it goes Passenger1, Passenger2 ect
         //Then use an for loop taking the total number of passengers as how many times to run
-        //calls all the move, draw and check function using Passengers[i] 
+        //calls all the move, draw and check function using Passengers[i]
 
     }
+
     public static ArrayList<Stops> startPoint(ArrayList<Routes> route){
-        // Returns a start end stop through an arraylist with pos 0 being start 
-        // and pos 1 being end. using random math for spawn locations 
+        // Returns a start end stop through an arraylist with pos 0 being start
+        // and pos 1 being end. using random math for spawn locations
         ArrayList<Stops> startEnd = new ArrayList<>();
         Stops startpoint;
         Stops endpoint;
         int randomRoute = (int) (Math.random() * (route.size() - 1)) ;
         Routes routes;
         // keeps start and stop on the same route to avoid swaping
-        routes = route.get(randomRoute); 
+        routes = route.get(randomRoute);
         int randomStart = (int) (Math.random() * (routes.stations.size() - 1)) + 0;
         int randomEnd = (int) (Math.random() * (routes.stations.size() -  1)) + 0;
 
@@ -67,50 +61,8 @@ public class Passenger {
 
     }
 
-
-    public boolean checkStop() {
-        return curStop.equals(end);
-    }
-
-    // Moves one stop closer to the destination on the given route.
-    // Returns true once the passenger has arrived (including if they were
-    // already there), false if there's still more of the route to go.
-    public boolean moveToNextStop(Routes route) {
-        if (checkStop()) {
-            message = name + " reached destination";
-            return true;
-        }
-
-        Stops next = route.getNextTowards(curStop, end);
-        if (next != null) {
-            curStop = next;
-        }
-
-        if (checkStop()) {
-            message = name + " reached destination";
-            return true;
-        }
-        return false;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public Stops getCurStop() {
-        return curStop;
-    }
-
-    public Stops getStart() {
-        return start;
-    }
-
-    public Stops getEnd() {
-        return end;
     }
 
     // Example passenger commuting between Jubilee and Percy Port.

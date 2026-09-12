@@ -42,16 +42,8 @@ public class SidePanel {
     SideTrain sideTrain = new SideTrain(leftWidth, topHeight);
     SideTable sideTable = new SideTable(0, topHeight, tableWidth); // fills the whole left area when open
 
-    public int getTopHeight() {
-        return topHeight;
-    }
-
     public int getLeftWidth() {
         return leftWidth;
-    }
-
-    public boolean isTableOpen() {
-        return tableOpen;
     }
 
     // True if (x, y) is over the fixed UI rather than the draggable map.

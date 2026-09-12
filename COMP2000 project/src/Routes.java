@@ -61,21 +61,4 @@ public class Routes {
         stops.add(Stops.MountPresley);
         return new Routes("Green Line", stops);
     }
-
-
-    // Next stop walking from current towards destination, either direction. Null if arrived or not on route.
-    public Stops getNextTowards(Stops current, Stops destination) {
-        int curIndex = stations.indexOf(current);
-        int destIndex = stations.indexOf(destination);
-        if (curIndex == -1 || destIndex == -1 || curIndex == destIndex) {
-            return null;
-        }
-        int step;
-        if (destIndex > curIndex) {
-            step = 1;
-        } else {
-            step = -1;
-        }
-        return stations.get(curIndex + step);
-    }
 }

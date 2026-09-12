@@ -11,10 +11,6 @@ public class EventQueue<T extends SimulationEvent> {
         events.add(event);
     }
 
-    public boolean isEmpty(){
-        return events.isEmpty();
-    }
-
     // True if the earliest queued event is due by the given step.
     public boolean hasDueEvent(long step){
         return !events.isEmpty() && events.peek().getStep() <= step;

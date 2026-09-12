@@ -11,14 +11,6 @@ public class AccidentEvent extends SimulationEvent {
         this.delaySteps = delaySteps;
     }
 
-    public String getTrainName(){
-        return trainName;
-    }
-
-    public int getDelaySteps(){
-        return delaySteps;
-    }
-
     @Override
     public void execute(Vehicles[] trains){
         for(Vehicles train : trains){
