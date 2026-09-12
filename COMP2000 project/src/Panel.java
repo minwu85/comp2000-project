@@ -37,6 +37,11 @@ public class Panel extends Frame{
     Image dbImage;
     Graphics dbGraphics;
 
+    // Sky and tree-line scenery drawn behind the routes. Null (and skipped)
+    // if the files cannot be read, so a missing asset never crashes the map.
+    Image skyImage;
+    Image treeImage;
+
     Insets insets = new Insets(0, 0, 0, 0);
 
     // Dragging the map pans it; the side panels stay fixed on screen.
@@ -51,6 +56,9 @@ public class Panel extends Frame{
     public Panel() {
         setTitle("Transit Sim");
         setSize(width, height);
+        // Loaded before the window is shown, so the very first paint already
+        // has the pictures ready instead of racing them and drawing blank.
+        loadBackgroundImages();
         setVisible(true);
 
         // Window closing adapter to safely close the application
@@ -80,12 +88,12 @@ public class Panel extends Frame{
 
         time = new Time(new ActionListener() {
             public void actionPerformed(ActionEvent e ) {
-                // The whole tick is wrapped so that the end of the service
-                // window (or any bad clock state) stops the simulation cleanly
-                // instead of throwing out of the Swing timer thread.
+                // The clock keeps running around the clock; SimulationTimeException
+                // only marks the moment service opens or closes, so it is just
+                // reported here rather than stopping anything.
                 try {
                     time.advance();
-                    if (time.isOnSecond()) {
+                    if (time.isOnSecond() && time.isServiceHours()) {
                         long step = time.ticks / 5;
                         Vehicles[] allTrains = {train1, train2, train3, train4};
                         while (accidents.hasDueEvent(step)) {
@@ -102,9 +110,6 @@ public class Panel extends Frame{
                         pass1.checkBoarding(train4.getCurStop(), train4.onBoard);
                     }
                 } catch (SimulationTimeException ste) {
-                    // Trains run 06:00 AM - 12:00 PM only. The clock is already
-                    // frozen and stopped inside Time; just report it and let the
-                    // final repaint show the 12:00 PM state.
                     System.out.println(ste.getMessage());
                 }
                 repaint();
@@ -216,14 +221,21 @@ public class Panel extends Frame{
     private void scheduleRandomAccidents() {
         Random random = new Random();
         Train[] allTrains = {train1, train2, train3, train4};
-        int accidentCount = 2 + random.nextInt(2);
+        int accidentCount = 3 + random.nextInt(3);
 
         for (int i = 0; i < accidentCount; i++) {
             Train chosen = allTrains[random.nextInt(allTrains.length)];
-            long step = 10 + random.nextInt(50);
+            long step = 10 + random.nextInt(200); // spread across the 06:00 AM - midnight run
             int delaySteps = 3 + random.nextInt(6);
             accidents.add(new AccidentEvent(step, chosen.getName(), delaySteps));
         }
+    }
+
+    // Reads the sky and tree scenery once at startup. If either file is
+    // missing or unreadable the map just falls back to a plain background.
+    private void loadBackgroundImages() {
+        skyImage = Assets.load("1.png");
+        treeImage = Assets.load("2.png");
     }
 
     // Pauses the clock, closes the simulation window and returns to the home screen.
@@ -253,6 +265,15 @@ public class Panel extends Frame{
     public void paint(Graphics screenGraphics) {
         // Reset font each frame so the clock's bigger font doesn't carry over.
         screenGraphics.setFont(new Font("SansSerif", Font.PLAIN, 12));
+
+        // Scenery behind everything else. Fixed on screen (not panned), like
+        // a sky, so dragging the map never leaves a gap behind it.
+        if (skyImage != null) {
+            screenGraphics.drawImage(skyImage, 0, 0, width, height, this);
+        }
+        if (treeImage != null) {
+            screenGraphics.drawImage(treeImage, 0, 0, width, height, this);
+        }
 
         // Map layer: shifted by the pan offset, so dragging moves the network
         // and stations without moving the side panels drawn later.
@@ -470,8 +491,10 @@ public class Panel extends Frame{
 
     }
 
+    // The home screen is always the true entry point, even if this class is
+    // run directly, so the app never skips straight into the simulation.
     public static void main(String[] args) {
-        new Panel();
+        new Home();
     }
 }
 

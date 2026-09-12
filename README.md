@@ -17,6 +17,8 @@ How to start the simulation:
 3. In the simulation, press space (or the play button, top right) to start
    the clock.
 4. Click the house button (top right) at any time to return to the home screen.
+5. Trains only run 06:00 AM - 12:00 PM. The clock keeps going after that (shown
+   in red as "SERVICE ENDED") and trains start again automatically at 06:00 AM.
 
 ## How the classes link
 
@@ -84,8 +86,9 @@ Panel (the window + game loop)
  │   ├─ SideTrain: scrolling list of trains, hover scrollbar
  │   └─ SideTable: wide timetable - one row per train (line, current stop,
  │                 time now, next stop, ETA)
- ├─ Time: 1 real sec = 5 ticks (trains step once per real sec); each real sec also
- │        jumps the clock ~5 sim minutes (+/-15s random) and reports date + 12h time
+ ├─ Time: 1 real sec = 5 ticks; each real sec jumps the clock ~5 sim minutes
+ │        (+/-15s random). Trains only move 06:00 AM - 12:00 PM; the clock keeps
+ │        going the rest of the day so service resumes on its own next morning
  ├─ EventQueue<SimulationEvent>: holds scheduled AccidentEvents; each one delays
  │        a named train, shown as a yellow/red hazard border on its card and map icon
  ├─ Passenger: a commuter moving stop to stop
@@ -101,6 +104,9 @@ The workspace contains two folders by default, where:
 
 - `src`: the folder to maintain sources
 - `lib`: the folder to maintain dependencies
+- `asserts`: background pictures (`1.png`, `2.png` for the map, `home.png`, `ins.png`
+  for the title/instructions screens). Loaded with a path relative to the working
+  directory, so run the app from inside `COMP2000 project`.
 
 Meanwhile, the compiled output files will be generated in the `bin` folder by default.
 
@@ -149,8 +155,8 @@ Status labels (plain text): DONE / PARTLY DONE / TODO / IDEA
    - Small colour key at the top of the side panel.
 
 8. Exceptions - DONE
-   - Custom `SimulationTimeException` (checked), thrown by `Time.advance()` when the clock would leave the 06:00 AM - 12:00 PM service window.
-   - Caught in `Panel`'s tick loop so the end of service freezes the clock cleanly instead of crashing the window.
+   - Custom `SimulationTimeException` (checked), thrown by `Time.advance()` when the clock crosses into or out of the 06:00 AM - 12:00 PM service window. Caught in `Panel`'s tick loop, which then starts or stops moving the trains.
+   - `Home`, `Instruction` and `Panel` each catch `IOException` around loading their background image, so a missing file falls back to a plain background instead of crashing.
 
 9. Instruction / help screen - DONE
    - A `Home` title screen (START / INSTRUCTION) and an `Instruction` screen (BACK / NEXT) explaining the goal and the controls.

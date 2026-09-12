@@ -3,6 +3,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Frame;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -16,35 +17,46 @@ public class Instruction extends Frame {
     int width = 1280;
     int height = 720;
 
+    int cardTop = 100;
+    int cardBottom = 130; // leaves room for the buttons below the card
+
     int buttonWidth = 160;
     int buttonHeight = 50;
     int buttonMargin = 40;
 
     Color background = new Color(238, 238, 238);
+    Color cardFill = new Color(255, 255, 255, 235);
     Color buttonFill = new Color(120, 120, 120);
 
+    Image backgroundImage;
+
     String[] lines = {
-        "Goal",
+        "GOAL",
         "Four trains (T1-T4) each run their own coloured line through a shared",
-        "network of stations, and passengers board and get off along the way.",
-        "Press space, or the play button, to watch the network run.",
+        "network of stations. Passengers appear, board a train at their start",
+        "stop, and get off at their destination. Press space, or the play",
+        "button, to watch the network run through its 06:00 AM - midnight",
+        "service - it pauses overnight and starts again automatically at 6am.",
         "",
-        "Buttons in the simulation",
-        "Space / play button (top right): start, pause and resume the clock.",
-        "House button (top right): come back to this home screen.",
-        "Drag the map: pan the network. The side panel stays fixed on screen.",
-        "Mouse wheel, or drag the scrollbar, over the left panel: scroll the train list.",
+        "CONTROLS IN THE SIMULATION",
+        "Space, or the play button (top right): start, pause and resume the clock.",
+        "House button (top right): return to this app's home screen.",
+        "Drag anywhere on the map: pan the network. The side panel stays put.",
+        "Mouse wheel, or drag its scrollbar, over the left panel: scroll the train list.",
         "The two tabs on the right of the side panel: switch between the train",
         "list (\"Train current\") and the timetable (\"Train table\").",
+        "A yellow/red striped border marks a train delayed by an accident.",
         "",
-        "Buttons on this screen",
-        "Back: return to the home screen.",
-        "Next: start the simulation."
+        "BUTTONS ON THIS SCREEN",
+        "BACK returns to the home screen. NEXT starts the simulation."
     };
 
     public Instruction() {
         setTitle("Transit Sim - Instructions");
         setSize(width, height);
+        // Loaded before the window is shown, so the very first paint already
+        // has the picture ready instead of racing it and drawing blank.
+        backgroundImage = Assets.load("ins.png");
         setVisible(true);
 
         addWindowListener(new WindowAdapter() {
@@ -91,37 +103,78 @@ public class Instruction extends Frame {
     }
 
     public void paint(Graphics g) {
-        g.setColor(background);
-        g.fillRect(0, 0, width, height);
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, width, height, this);
+        } else {
+            g.setColor(background);
+            g.fillRect(0, 0, width, height);
+        }
         g.setColor(Color.black);
         g.drawRect(0, 0, width - 1, height - 1);
 
         g.setFont(new Font("SansSerif", Font.BOLD, 32));
-        g.drawString("Instructions", 40, 60);
+        g.setColor(Color.WHITE);
+        g.drawString("Instructions", 380, 80);
 
-        int y = 110;
-        for (String line : lines) {
-            if (isHeading(line)) {
-                g.setFont(new Font("SansSerif", Font.BOLD, 18));
-            } else {
-                g.setFont(new Font("SansSerif", Font.PLAIN, 15));
-            }
-            g.drawString(line, 40, y);
-            y = y + 26;
-        }
-
+        drawCard(g);
         drawButton(g, backX(), "BACK");
         drawButton(g, nextX(), "NEXT");
     }
 
+    // The card is sized to its widest line of text, then centred on screen,
+    // rather than stretched full width with empty space down one side.
+    private void drawCard(Graphics g) {
+        int cardWidth = measureCardWidth(g);
+        int cardHeight = height - cardTop - cardBottom;
+        int cardX = (width - cardWidth) / 2;
+
+        g.setColor(cardFill);
+        g.fillRect(cardX, cardTop, cardWidth, cardHeight);
+        g.setColor(Color.black);
+        g.drawRect(cardX, cardTop, cardWidth, cardHeight);
+
+        int textX = cardX + 30;
+        int y = cardTop + 40;
+        for (String line : lines) {
+            if (isHeading(line)) {
+                g.setFont(new Font("SansSerif", Font.BOLD, 18));
+                g.setColor(new Color(40, 40, 40));
+            } else {
+                g.setFont(new Font("SansSerif", Font.PLAIN, 15));
+                g.setColor(Color.black);
+            }
+            g.drawString(line, textX, y);
+            y = y + 26;
+        }
+    }
+
+    private int measureCardWidth(Graphics g) {
+        FontMetrics plainFm = g.getFontMetrics(new Font("SansSerif", Font.PLAIN, 15));
+        FontMetrics boldFm = g.getFontMetrics(new Font("SansSerif", Font.BOLD, 18));
+        int maxWidth = 0;
+        for (String line : lines) {
+            FontMetrics fm;
+            if (isHeading(line)) {
+                fm = boldFm;
+            } else {
+                fm = plainFm;
+            }
+            int lineWidth = fm.stringWidth(line);
+            if (lineWidth > maxWidth) {
+                maxWidth = lineWidth;
+            }
+        }
+        return maxWidth + 60;
+    }
+
     private boolean isHeading(String line) {
-        if (line.equals("Goal")) {
+        if (line.equals("GOAL")) {
             return true;
         }
-        if (line.equals("Buttons in the simulation")) {
+        if (line.equals("CONTROLS IN THE SIMULATION")) {
             return true;
         }
-        if (line.equals("Buttons on this screen")) {
+        if (line.equals("BUTTONS ON THIS SCREEN")) {
             return true;
         }
         return false;
@@ -131,6 +184,8 @@ public class Instruction extends Frame {
         int y = buttonY();
         g.setColor(buttonFill);
         g.fillRect(x, y, buttonWidth, buttonHeight);
+        g.setColor(Color.black);
+        g.drawRect(x, y, buttonWidth, buttonHeight);
 
         g.setColor(Color.white);
         g.setFont(new Font("SansSerif", Font.BOLD, 16));

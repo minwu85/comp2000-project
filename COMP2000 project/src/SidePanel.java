@@ -14,10 +14,8 @@ public class SidePanel {
     int leftWidth = 320;   // width of the SideTrain panel
     int tableWidth = 960;  // right edge of the SideTable panel when it is open
 
-    int pauseSize = 56;
+    int topButtonSize = 44; // shared by the pause and home buttons
     int pauseMargin = 20;
-
-    int homeSize = 44;
     int homeGap = 10; // gap between the home button and the pause button
 
     // Tab sizing: snug by default, a little wider while the mouse hovers over it.
@@ -108,10 +106,10 @@ public class SidePanel {
         g.setFont(new Font("SansSerif", Font.PLAIN, 13));
         g.drawString(time.getDateText(), boxX + 14, boxY + 45);
 
-        if (time.isEnded()) {
+        if (!time.isServiceHours()) {
             g.setColor(new Color(255, 120, 120));
             g.setFont(new Font("SansSerif", Font.BOLD, 16));
-            g.drawString("SERVICE ENDED 12:00 PM", boxX + boxW + 24, boxY + 34);
+            g.drawString("SERVICE ENDED - RESUMES 6:00 AM", boxX + boxW + 24, boxY + 34);
         }
 
         drawHomeButton(g, panelWidth);
@@ -121,27 +119,27 @@ public class SidePanel {
     // Top-bar pause and home buttons
 
     private int pauseX(int panelWidth) {
-        return panelWidth - pauseSize - pauseMargin;
+        return panelWidth - topButtonSize - pauseMargin;
     }
 
     private int pauseY() {
-        return (topHeight - pauseSize) / 2;
+        return (topHeight - topButtonSize) / 2;
     }
 
     private int homeX(int panelWidth) {
-        return pauseX(panelWidth) - homeSize - homeGap;
+        return pauseX(panelWidth) - topButtonSize - homeGap;
     }
 
     private int homeY() {
-        return (topHeight - homeSize) / 2;
+        return (topHeight - topButtonSize) / 2;
     }
 
     public boolean isPauseClicked(int mouseX, int mouseY, int panelWidth) {
-        return inRect(mouseX, mouseY, pauseX(panelWidth), pauseY(), pauseSize, pauseSize);
+        return inRect(mouseX, mouseY, pauseX(panelWidth), pauseY(), topButtonSize, topButtonSize);
     }
 
     public boolean isHomeClicked(int mouseX, int mouseY, int panelWidth) {
-        return inRect(mouseX, mouseY, homeX(panelWidth), homeY(), homeSize, homeSize);
+        return inRect(mouseX, mouseY, homeX(panelWidth), homeY(), topButtonSize, topButtonSize);
     }
 
     public boolean setButtonHover(int mouseX, int mouseY, int panelWidth) {
@@ -163,22 +161,22 @@ public class SidePanel {
         } else {
             g.setColor(buttonFill);
         }
-        g.fillRect(x, y, homeSize, homeSize);
+        g.fillRect(x, y, topButtonSize, topButtonSize);
         g.setColor(Color.black);
-        g.drawRect(x, y, homeSize, homeSize);
+        g.drawRect(x, y, topButtonSize, topButtonSize);
 
-        int[] roofX = {x + 6, x + homeSize / 2, x + homeSize - 6};
+        int[] roofX = {x + 6, x + topButtonSize / 2, x + topButtonSize - 6};
         int[] roofY = {y + 22, y + 8, y + 22};
         g.setColor(new Color(60, 60, 60));
         g.fillPolygon(roofX, roofY, 3);
-        g.fillRect(x + 11, y + 22, homeSize - 22, 14);
+        g.fillRect(x + 11, y + 22, topButtonSize - 22, 14);
 
         if (homeHover) {
             g.setColor(buttonHoverFill);
         } else {
             g.setColor(buttonFill);
         }
-        g.fillRect(x + homeSize / 2 - 3, y + 27, 6, 9); // door
+        g.fillRect(x + topButtonSize / 2 - 3, y + 27, 6, 9); // door
     }
 
     private void drawPauseButton(Graphics g, int panelWidth, boolean running) {
@@ -190,17 +188,17 @@ public class SidePanel {
         } else {
             g.setColor(buttonFill);
         }
-        g.fillRect(x, y, pauseSize, pauseSize);
+        g.fillRect(x, y, topButtonSize, topButtonSize);
         g.setColor(Color.black);
-        g.drawRect(x, y, pauseSize, pauseSize);
+        g.drawRect(x, y, topButtonSize, topButtonSize);
 
-        int barW = pauseSize / 6;
+        int barW = topButtonSize / 6;
         if (running) {
-            g.fillRect(x + pauseSize / 5, y + 10, barW, pauseSize - 20);
-            g.fillRect(x + pauseSize - pauseSize / 5 - barW, y + 10, barW, pauseSize - 20);
+            g.fillRect(x + topButtonSize / 5, y + 10, barW, topButtonSize - 20);
+            g.fillRect(x + topButtonSize - topButtonSize / 5 - barW, y + 10, barW, topButtonSize - 20);
         } else {
-            int[] xs = {x + 16, x + 16, x + pauseSize - 14};
-            int[] ys = {y + 10, y + pauseSize - 10, y + pauseSize / 2};
+            int[] xs = {x + 16, x + 16, x + topButtonSize - 14};
+            int[] ys = {y + 10, y + topButtonSize - 10, y + topButtonSize / 2};
             g.fillPolygon(xs, ys, 3);
         }
     }

@@ -3,14 +3,16 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Frame;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-// The title screen shown when the app starts: a map placeholder plus two
-// buttons, one into the simulation and one into the instructions.
+// The title screen shown when the app starts: a background picture, a
+// title, and two buttons - one into the simulation and one into the
+// instructions.
 public class Home extends Frame {
 
     int width = 1280;
@@ -22,12 +24,16 @@ public class Home extends Frame {
     int buttonMargin = 40;
 
     Color background = new Color(238, 238, 238);
-    Color mapText = new Color(90, 90, 90);
     Color buttonFill = new Color(120, 120, 120);
+
+    Image backgroundImage;
 
     public Home() {
         setTitle("Transit Sim - Home");
         setSize(width, height);
+        // Loaded before the window is shown, so the very first paint already
+        // has the picture ready instead of racing it and drawing blank.
+        backgroundImage = Assets.load("home.png");
         setVisible(true);
 
         addWindowListener(new WindowAdapter() {
@@ -74,23 +80,41 @@ public class Home extends Frame {
     }
 
     public void paint(Graphics g) {
-        g.setColor(background);
-        g.fillRect(0, 0, width, height);
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, width, height, this);
+        } else {
+            g.setColor(background);
+            g.fillRect(0, 0, width, height);
+        }
         g.setColor(Color.black);
         g.drawRect(0, 0, width - 1, height - 1);
 
-        g.setColor(mapText);
-        g.setFont(new Font("SansSerif", Font.PLAIN, 90));
-        g.drawString("MAP", width / 2 - 150, height / 2);
-
+        drawTitle(g);
         drawButton(g, startY(), "START");
         drawButton(g, instructionY(), "INSTRUCTION");
+    }
+
+    // A dark strip behind the title keeps it readable over the busy picture.
+    // Sized to the text itself, so the strip always fits the title exactly.
+    private void drawTitle(Graphics g) {
+        String title = "Train Simulation";
+        g.setFont(new Font("SansSerif", Font.BOLD, 42));
+        FontMetrics fm = g.getFontMetrics();
+        int stripWidth = fm.stringWidth(title) + 60;
+
+        g.setColor(new Color(0, 0, 0, 130));
+        g.fillRect(0, 30, stripWidth, 70);
+
+        g.setColor(Color.white);
+        g.drawString(title, 30, 80);
     }
 
     private void drawButton(Graphics g, int y, String label) {
         int x = buttonX();
         g.setColor(buttonFill);
         g.fillRect(x, y, buttonWidth, buttonHeight);
+        g.setColor(Color.black);
+        g.drawRect(x, y, buttonWidth, buttonHeight);
 
         g.setColor(Color.white);
         g.setFont(new Font("SansSerif", Font.BOLD, 16));

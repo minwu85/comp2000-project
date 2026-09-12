@@ -53,20 +53,6 @@ public class Vehicles {
         return name;
     }
 
-    public void addPassangers(){
-        if(onBoard.size() == capacity){
-            //Move to next station
-            //
-        } else{
-            // get passangers from station and place them in the train arraylist 
-        }
-    }
-
-    public void disembarkPassangers(){
-       //call the passangers and ask them if this is there stop once they are all disembarked
-       // 
-    }
-
     // Called by an AccidentEvent: stops this vehicle at its current stop for
     // the given number of steps before it moves again.
     public void delay(int steps){
