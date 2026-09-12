@@ -1,7 +1,7 @@
 // A generic pair of two values that can be different types, e.g. a label and
 // its value. T and U are type parameters: Pair<String, String> makes both
 // getFirst() and getSecond() return String, Pair<String, Integer> makes
-// getSecond() return an Integer, and so on - the compiler checks this for us.
+// getSecond() return an Integer, checked at compile time.
 public class Pair<T, U> {
 
     private T first;

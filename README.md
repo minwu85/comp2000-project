@@ -1,26 +1,32 @@
 # comp2000-simulation project
 
-The team name: OOPP The GOOP
+COMP2000 S2 2026 Assignment 
 
-The team members: Ashton, Luke, Daniel, Minying, Amanda
+Team: OOPP The GOOP: Ashton, Luke, Daniel, Minying, Amanda
 
-### Project Goal
-The project goal is to build a train simulation.
+## Project Goal
+
+A small transit-network simulation: four trains, each on its own coloured
+line, share a station network and carry passengers between stops. Random
+accidents delay individual trains mid-route, and the whole timetable runs on
+a simulated 06:00 AM to midnight day, resuming automatically each morning.
 
 ## Getting Started
 
-How to start the simulation:
+1. Run `Home.java`.
+2. START opens the simulation directly; INSTRUCTION explains the controls
+   first, then NEXT opens it.
+3. Space, or the play button (top right), starts/pauses the clock. The house
+   button (top right) returns to the home screen.
+4. Trains run 06:00 AM – midnight; the clock keeps going overnight and
+   service resumes automatically at 6am.
 
-1. Run `Home.java`. This opens the home screen.
-2. Click START to go straight to the simulation, or INSTRUCTION to read the
-   controls first (then click NEXT there to reach the simulation).
-3. In the simulation, press space (or the play button, top right) to start
-   the clock.
-4. Click the house button (top right) at any time to return to the home screen.
-5. Trains only run 06:00 AM - 12:00 PM. The clock keeps going after that (shown
-   in red as "SERVICE ENDED") and trains start again automatically at 06:00 AM.
+## Folder Structure
 
-## How the classes link
+- src: the folder to maintain sources
+- lib: the folder to maintain dependencies
+
+## Classes
 
 ```mermaid
 graph TD
@@ -29,11 +35,11 @@ graph TD
     Instruction -->|extends| Frame
     Panel -->|extends| Frame
 
-    Home -->|START button opens| Panel
-    Home -->|INSTRUCTION button opens| Instruction
-    Instruction -->|BACK button opens| Home
-    Instruction -->|NEXT button opens| Panel
-    Panel -->|house button opens| Home
+    Home -->|START| Panel
+    Home -->|INSTRUCTION| Instruction
+    Instruction -->|BACK| Home
+    Instruction -->|NEXT| Panel
+    Panel -->|house button| Home
 
     Panel -->|creates & draws| SidePanel
     Panel -->|creates 4x| Train
@@ -55,9 +61,6 @@ graph TD
 
     SidePanel -->|owns| SideTrain
     SidePanel -->|owns| SideTable
-    SidePanel -->|reads| Time
-    SideTrain -->|reads| Vehicles
-    SideTable -->|reads| Vehicles
     SideTable -->|reads times from| Time
 
     Time -->|wraps| Timer[javax.swing.Timer]:::ext
@@ -65,160 +68,53 @@ graph TD
     classDef ext fill:#eee,stroke:#999,color:#333;
 ```
 
+| Class | Role |
+|---|---|
+| `Home`, `Instruction`, `Panel` | the three screens (title, help, simulation); each `extends Frame` |
+| `SidePanel` | top bar (clock, pause, house) and the tabs that switch views |
+| `SideTrain` / `SideTable` | scrolling train-card list / timetable view |
+| `Vehicles` → `Train` | a vehicle on a route; `Train` adds the `t1()`–`t4()` factories |
+| `Routes`, `Stops` | one line's ordered stops; one station |
+| `Passenger` | a commuter walking stop to stop |
+| `Time` | simulated clock, 06:00–midnight service window, throws on the hour boundary |
+| `SimulationEvent` → `AccidentEvent` | a scheduled effect; delays one named train |
+| `EventQueue<T extends SimulationEvent>` | priority queue of due events, wraps `PriorityQueue<T>` |
+| `Pair<T, U>`, `GenericUtil` | small generics: a label/value pair, a bounded `max(T, T)` |
+| `SimulationTimeException` | custom checked exception for the service window |
+| `HazardStripe`, `Assets` | drawing helper (delay border); background-picture loader |
 
 
-## FlowChart 
+## Project Status
 
+Status: DONE / PARTLY DONE / TODO
 
-This explain each Class do
+| Feature | Status | Note |
+|---|---|---|
+| Top bar | DONE | clock, date, pause, house button |
+| Train list (SideTrain) | PARTLY DONE | no passenger-waiting count yet |
+| Timetable (SideTable) | DONE | one row per train + "busiest right now" |
+| Time | DONE | 06:00–midnight, ~5 sim-min/real-sec, random wobble |
+| Accidents / delays | DONE | `EventQueue<AccidentEvent>`, hazard-stripe indicator |
+| Random passengers | PARTLY DONE | random start/end; no rush-hour spawn curve |
+| Passenger types by colour | TODO | e.g. student/worker colour key |
+| Exceptions | DONE | `SimulationTimeException`; image loads fall back instead of crashing |
+| Home / Instruction screens | DONE | |
+| Clickable stations | TODO | show waiting passengers, next train |
 
+## Ideas for later
 
-Plain-text version:
-
-```
-Home (title screen) -> START -> Panel, or -> INSTRUCTION -> Instruction -> NEXT -> Panel
-Instruction -> BACK -> Home
-Panel -> house button -> Home
-
-Panel (the window + game loop)
- ├─ SidePanel: draws the top bar (Time|Day box, house + pause buttons) and
- │             switches between two views with the chevron tabs on the right:
- │   ├─ SideTrain: scrolling list of trains, hover scrollbar
- │   └─ SideTable: wide timetable - one row per train (line, current stop,
- │                 time now, next stop, ETA)
- ├─ Time: 1 real sec = 5 ticks; each real sec jumps the clock ~5 sim minutes
- │        (+/-15s random). Trains only move 06:00 AM - 12:00 PM; the clock keeps
- │        going the rest of the day so service resumes on its own next morning
- ├─ EventQueue<SimulationEvent>: holds scheduled AccidentEvents; each one delays
- │        a named train, shown as a yellow/red hazard border on its card and map icon
- ├─ Passenger: a commuter moving stop to stop
- └─ Train  ── extends ──> Vehicles
-                          ├─ Routes: ordered list of Stops for one line
-                          │   └─ Stops: a single station (x, y, name)
-                          └─ ArrayList<Passenger>  who is on board
-```
-
-## Folder Structure
-
-The workspace contains two folders by default, where:
-
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
-- `asserts`: background pictures (`1.png`, `2.png` for the map, `home.png`, `ins.png`
-  for the title/instructions screens). Loaded with a path relative to the working
-  directory, so run the app from inside `COMP2000 project`.
-
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
-
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
-
-
-
-
-## Project status and next steps
-
-Status labels (plain text): DONE / PARTLY DONE / TODO / IDEA
-
-### Core features
-
-1. Top panel - DONE
-   - Top bar shows the simulated clock (12-hour, AM/PM) and the date.
-   - Pause / continue button (also toggled with space) and a house button that returns to the home screen.
-
-2. Left panel (SideTrain) - PARTLY DONE
-   - Left panel with one card per train: line, current stop, next stop, time and ETA.
-   - Scrolling list with a hover scrollbar.
-   - Still to do: show passenger counts (number waiting, number on each train).
-
-3. Train time table (SideTable) - DONE
-   - Separate wide view with one row per train (line, current stop, time, next stop, ETA).
-   - Switched with the two tabs on the right ("Train current" / "Train table").
-   - "Busiest right now" footer.
-   - Still to do: a real per-stop schedule instead of a flat "+3 min between stops" estimate.
-
-4. Time - DONE
-   - 1 real second = 5 ticks; trains step once per real second.
-   - Each real second the clock jumps about 5 simulated minutes, with a small random wobble so the seconds look realistic.
-   - Format is HH:MM:SS AM/PM plus weekday and date.
-
-5. Accidents / delays - DONE
-   - A few random accidents are scheduled per run (EventQueue<SimulationEvent> of AccidentEvents); each stops one train at its current stop for a few steps.
-   - A delayed train shows a yellow/red hazard-stripe border, both on its side-panel card and its map icon.
-   - Still to do: a replacement bus / metro option instead of just waiting out the delay.
-
-6. Random passengers - PARTLY DONE
-   - A passenger already picks a random start and end stop on one line.
-   - Still to do: spawn more passengers at rush hour (e.g. 8-9am students and workers), and show min/max on a small graph or table.
-
-7. Passenger types with colour - TODO
-   - student = orange, worker = another colour, etc.
-   - Small colour key at the top of the side panel.
-
-8. Exceptions - DONE
-   - Custom `SimulationTimeException` (checked), thrown by `Time.advance()` when the clock crosses into or out of the 06:00 AM - 12:00 PM service window. Caught in `Panel`'s tick loop, which then starts or stops moving the trains.
-   - `Home`, `Instruction` and `Panel` each catch `IOException` around loading their background image, so a missing file falls back to a plain background instead of crashing.
-
-9. Instruction / help screen - DONE
-   - A `Home` title screen (START / INSTRUCTION) and an `Instruction` screen (BACK / NEXT) explaining the goal and the controls.
-
-10. Clickable stations - TODO
-    - Click a station to see how many passengers are waiting and the next train.
-
-## New ideas that can be added
-
-
-#### Generics
-- Done: `EventQueue<T extends SimulationEvent>` (wraps a `PriorityQueue<T>`) schedules accidents; `Pair<T, U>` bundles a label + value for timetable/card rows.
-- Still an idea: more event types on top of `SimulationEvent` (e.g. rush hour, a scheduled arrival) once passenger spawning supports it.
-
-#### Exceptions
-- Done: `SimulationTimeException` (custom, checked) for the 06:00 AM - 12:00 PM service window, caught in the tick loop.
-- Still an idea: `RouteNotFoundException` (stop not on the line) and `TrainFullException` (boarding a full train).
-
-#### Collections
-- A Map<String, Train> for looking trains up by name, or Map<Stops, List<Passenger>> for who is waiting at each station.
-- A queue of passengers at each station (first in, first on).
-
-### UI Design 
-
-#### Simulation depth
-- Enforce train capacity: a full train skips boarding and passengers wait for the next one.
-- Use Stops.checkCapacity() so busy stations take longer to board.
-- Statistics view: passengers delivered, average wait time, on-time percentage.
-- Rush-hour spawn curve tied to the clock.
-- Speed control (1x / 2x / 4x) next to pause.
-- Day/night background tint from the simulated clock.
-
-UI and usability
-- Zoom the map with the mouse wheel when the pointer is over the map (the wheel currently only scrolls the train list).
-- Click a line colour in a legend to highlight that line and fade the others.
-- Larger-font toggle.
-
-
-
-## Idea for wk7-13
-
-#### Inheritance and polymorphism
-- More vehicle types as subclasses of Vehicles: Bus, Tram, Metro, each with its own speed, capacity and draw style. The paint loop already treats them all as Vehicles, so this shows polymorphism cleanly.
-- Done: `SimulationEvent` base class with `AccidentEvent` as its first subclass (delays a train). More event types (e.g. one per accident cause below) can extend `SimulationEvent` the same way.
-
-#### Testing and logbook
-- JUnit tests for Routes.getNextTowards, Vehicles.moveVehicle (including the bounce at the end of the line), and Time formatting.
-- Move station and route data into a text or JSON file instead of hardcoding it in Stops.java and Routes.java.
-
-### Different types of accident for train delay (idea list)
-
-- fire
-- rain
-- earthquake
-- a fatality on the line
-- train breakdown
-- train collision
-- train derailment
-
-### Later / nice to have
-
-- Passenger look - DONE (drawn as an orange dot on the train); could still be improved.
+- More vehicle types (`Bus`, `Tram`) as further `Vehicles` subclasses.
+- More `SimulationEvent` types (rush hour, scheduled arrival) once passenger spawning supports them.
+- `RouteNotFoundException`, `TrainFullException`.
+- Train capacity limits; `Stops.checkCapacity()` wired into boarding time.
+- Statistics view (delivered / average wait / on-time %); speed control (1x/2x/4x); day-night tint.
+- Map zoom on scroll; click a line to highlight it; larger-font toggle.
+- Station data in a text/JSON file instead of hardcoded in `Stops`/`Routes`.
+- JUnit tests for `Routes.getNextTowards`, `Vehicles.moveVehicle`, `Time` formatting.
+- More accident causes (fire, weather, breakdown, collision, derailment); a replacement bus while a train is delayed.
 - Train images instead of coloured rectangles.
-- Weather effects linked to the accident system.
-- Bus that can be added when a train breaks down.
+
+
+
+
+

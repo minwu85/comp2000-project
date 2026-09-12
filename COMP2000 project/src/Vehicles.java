@@ -79,7 +79,8 @@ public class Vehicles {
         }
     }
 
-    // Translucent red rectangle, thin outline, labelled with the vehicle's name.
+    // Coloured rectangle at the current stop, labelled with the vehicle's name,
+    // with a red outline and hazard stripe while delayed.
     public void displayVehicle(Graphics g, int red, int green, int blue){
         Stops curStop = getCurStop();
         int x = curStop.x-width/2;
@@ -107,7 +108,7 @@ public class Vehicles {
         int textY = y + (height + fm.getAscent()) / 2 - 2;
         g.setColor(Color.white);
         g.drawString(name, textX, textY);
-        //passonger display
+        // Passenger indicator: a small dot in the corner when someone is aboard.
         if(onBoard.size() > 0){
             int passengerSize = 6;
             int passengerX = x + width - passengerSize - 2;

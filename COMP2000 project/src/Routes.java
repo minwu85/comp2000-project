@@ -9,21 +9,6 @@ public class Routes {
         this.stations = stations;
     }
 
-    // Builds the example line without the old self-constructing field bug.
-    public static Routes line1() {
-        ArrayList<Stops> firstLine = new ArrayList<>();
-        firstLine.add(Stops.TownHall);
-        firstLine.add(Stops.Eagleston);
-        firstLine.add(Stops.Rosebury); 
-        firstLine.add(Stops.Central);
-        firstLine.add(Stops.Jubilee);
-        firstLine.add(Stops.Bakerville);
-        firstLine.add(Stops.PercyPort);
-        return new Routes("Line1", firstLine);
-
-    }
-    
-
     // The full red line, running past Percy Port to its actual end.
     public static Routes redLine() {
         ArrayList<Stops> stops = new ArrayList<>();
@@ -92,10 +77,5 @@ public class Routes {
             step = -1;
         }
         return stations.get(curIndex + step);
-    }
-
-    // Bounded generic: works for Stops or any subclass.
-    public static <T extends Stops> boolean isOnRoute(Routes route, T stop) {
-        return route.stations.contains(stop);
     }
 }
