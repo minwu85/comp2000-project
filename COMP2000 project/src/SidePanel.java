@@ -262,17 +262,19 @@ public class SidePanel {
 
     // "Train curr" always opens the train list; "Train time table" always
     // opens the timetable - each tab always switches to its own view.
+    
+
     public boolean handleTabClick(int mouseX, int mouseY, int panelWidth) {
         if (inTab(mouseX, mouseY, trainTabY())) {
             tableOpen = false;
-            return true;
-        }
-        if (inTab(mouseX, mouseY, tableTabY())) {
+        } else if (inTab(mouseX, mouseY, tableTabY())) {
             tableOpen = true;
-            return true;
+        } else {
+            return false;
         }
-        return false;
+        return true;
     }
+
 
     // Pointer / scroll forwarding
 
