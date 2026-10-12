@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 public class Passenger {
     // A commuter with a fixed random start and end stop on one line.
@@ -39,6 +40,13 @@ public class Passenger {
         //calls all the move, draw and check function using Passengers[i]
 
     }
+    // Consumer<Time> spawnPassengers = time ->{
+    //     if(time.ticks % 60 == 0){
+    //         for(int i =0;i<100;i++){
+    //             startPoint(allRoutes());
+    //         }
+    //     }
+    //     };
 
     public static ArrayList<Stops> startPoint(ArrayList<Routes> route){
         // Returns a start end stop through an arraylist with pos 0 being start
