@@ -110,7 +110,7 @@ public class Panel extends Frame{
                         pass1.checkBoarding(train4.getCurStop(), train4.onBoard);
                     }
                 } catch (SimulationTimeException ste) {
-                    System.out.println(ste.getMessage());
+                    //System.out.println(ste.getMessage());
                 }
                 repaint();
             }
