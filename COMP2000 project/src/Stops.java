@@ -1,4 +1,5 @@
 import java.util.Objects;
+import java.util.function.IntSupplier;
 
 public class Stops {
     int x;
@@ -47,13 +48,15 @@ public class Stops {
         return name;
     }
 
-    public int checkCapacity() {
-        int boardingTime = 0;
-        if (totalComuters >= capacity / 3) {
-            boardingTime = 5; // a busy stop takes a little longer to board
-        }
-        return boardingTime;
-    }
+    // public int checkCapacity() {
+    //     int boardingTime = 0;
+    //     if (totalComuters >= capacity / 3) {
+    //         boardingTime = 5; // a busy stop takes a little longer to board
+    //     }
+    //     return boardingTime;
+    // }   
+    IntSupplier checkCapacity = () -> (totalComuters >= capacity / 3) ? 5 : 0;
+
 
     // Same name means same station, so curStop.equals(end) works reliably.
     @Override

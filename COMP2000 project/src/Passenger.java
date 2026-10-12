@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 public class Passenger {
     // A commuter with a fixed random start and end stop on one line.
@@ -32,6 +33,15 @@ public class Passenger {
                 startPoint(allRoutes());
             }
         }
+
+        Consumer<Time> spawnPassengers = time ->{
+            if(time.ticks % 60 == 0){
+            for(int i =0;i<100;i++){
+                startPoint(allRoutes());
+            }
+        }
+        }
+
         //To do
         // Make a function called count passengers which counts total passengers in scene
         //Name passengers so that it goes Passenger1, Passenger2 ect
