@@ -33,15 +33,6 @@ public class Passenger {
                 startPoint(allRoutes());
             }
         }
-
-        Consumer<Time> spawnPassengers = time ->{
-            if(time.ticks % 60 == 0){
-            for(int i =0;i<100;i++){
-                startPoint(allRoutes());
-            }
-        }
-        }
-
         //To do
         // Make a function called count passengers which counts total passengers in scene
         //Name passengers so that it goes Passenger1, Passenger2 ect
@@ -49,6 +40,13 @@ public class Passenger {
         //calls all the move, draw and check function using Passengers[i]
 
     }
+    Consumer<Time> spawnPassengers = time ->{
+        if(time.ticks % 60 == 0){
+            for(int i =0;i<100;i++){
+                startPoint(allRoutes());
+            }
+        }
+        };
 
     public static ArrayList<Stops> startPoint(ArrayList<Routes> route){
         // Returns a start end stop through an arraylist with pos 0 being start
