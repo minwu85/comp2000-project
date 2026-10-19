@@ -2,10 +2,13 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 // The "Train table" view: a wide panel that opens over the map with one row per
-// train (line, current stop, next stop, rough ETA) and a footer naming the
-// busiest train. Times come from the Time class.
+// train (line, current stop, next stop, rough ETA), then a footer naming the
+// busiest train and a running/delayed status board. Times come from Time.
 public class SideTable implements SideView {
 
     private final int leftX;   // x where the table starts
@@ -83,6 +86,7 @@ public class SideTable implements SideView {
         }
 
         drawBusiestFooter(g, leftX + 20, rowY + 10, trains);
+        drawStatusBoard(g, leftX + 20, rowY + 30, trains);
     }
 
     private void drawRow(Graphics g, int y, Vehicles train, Time time) {
@@ -120,5 +124,33 @@ public class SideTable implements SideView {
                     g.drawString("Busiest right now: " + busiest.getName()
                             + " (" + most + " aboard)", x, y + 14);
                 });
+    }
+
+    private static String status(Vehicles train) {
+        if (train.isDelayed()) {
+            return "Delayed";
+        }
+        return "Running";
+    }
+
+    // Groups the trains by status with a collector. Each status maps to the
+    // names of its trains, kept in alphabetical status order by the TreeMap,
+    // e.g. "Delayed: T3     Running: T1, T2, T4".
+    String statusLine(Vehicles[] trains) {
+        Map<String, String> namesByStatus = Arrays.stream(trains)
+                .collect(Collectors.groupingBy(
+                        SideTable::status,
+                        TreeMap::new,
+                        Collectors.mapping(Vehicles::getName, Collectors.joining(", "))));
+
+        return namesByStatus.entrySet().stream()
+                .map(entry -> entry.getKey() + ": " + entry.getValue())
+                .collect(Collectors.joining("     "));
+    }
+
+    private void drawStatusBoard(Graphics g, int x, int y, Vehicles[] trains) {
+        g.setColor(new Color(60, 60, 60));
+        g.setFont(new Font("SansSerif", Font.ITALIC, 12));
+        g.drawString(statusLine(trains), x, y + 14);
     }
 }
