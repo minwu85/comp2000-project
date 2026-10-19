@@ -2,30 +2,28 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 
-// Coordinates the fixed UI: the top bar (Time|Day box, pause button) and the
-// two left views - SideTrain (list of trains) and SideTable (timetable).
-// Only one view is drawn at a time. Two chevron tabs on the right edge switch
-// between them: "Train current" always sits on top, "Train table" always sits
-// below it, so their positions never swap - only the highlight colour and the
-// hovered width change.
+// The fixed UI: the top bar (Time|Day box, home and pause buttons) and one of
+// two left views, SideTrain (list of trains) or SideTable (timetable).
+// SidePanel is the context of a State pattern: `view` is the current state and
+// does the drawing and the scrolling. Two chevron tabs on the view's right
+// edge switch state; their positions never swap, only colour and width change.
 public class SidePanel {
 
     int topHeight = 70;
     int leftWidth = 320;   // width of the SideTrain panel
-    int tableWidth = 960;  // right edge of the SideTable panel when it is open
+    int tableWidth = 960;  // right edge of the SideTable panel
 
     int topButtonSize = 44; // shared by the pause and home buttons
     int pauseMargin = 20;
-    int homeGap = 10; // gap between the home button and the pause button
+    int homeGap = 10;       // gap between the home button and the pause button
 
-    // Tab sizing: snug by default, a little wider while the mouse hovers over it.
+    // Tabs are snug by default and a little wider while the mouse hovers.
     int tabShortWidth = 100;
-    int tabFullWidth = 135; //mouse over
+    int tabFullWidth = 135;
     int tabHeight = 40;
     int tabPoint = 14;   // length of the pointed tip
     int tabGap = 10;     // vertical gap between the two tabs
 
-    boolean tableOpen = false;
     boolean trainTabHover = false;
     boolean tableTabHover = false;
     boolean pauseHover = false;
@@ -40,7 +38,8 @@ public class SidePanel {
     Color tabInactiveFill = new Color(90, 90, 90);
 
     SideTrain sideTrain = new SideTrain(leftWidth, topHeight);
-    SideTable sideTable = new SideTable(0, topHeight, tableWidth); // fills the whole left area when open
+    SideTable sideTable = new SideTable(0, topHeight, tableWidth);
+    SideView view = sideTrain;
 
     public int getLeftWidth() {
         return leftWidth;
@@ -48,32 +47,12 @@ public class SidePanel {
 
     // True if (x, y) is over the fixed UI rather than the draggable map.
     public boolean isOverPanel(int x, int y, int panelWidth, int panelHeight) {
-        if (y < topHeight) {
-            return true;
-        }
-        int leftEdge;
-        if (tableOpen) {
-            leftEdge = tableWidth;
-        } else {
-            leftEdge = leftWidth;
-        }
-        if (x < leftEdge) {
-            return true;
-        }
-        return isOverAnyTab(x, y);
+        return y < topHeight || x < view.rightEdge() || isOverAnyTab(x, y);
     }
-
-    // Drawing
 
     public void display(Graphics g, int panelWidth, int panelHeight, Time time, Vehicles[] trains) {
         drawTopBar(g, panelWidth, time);
-
-        if (tableOpen) {
-            sideTable.draw(g, panelHeight, trains, time);
-        } else {
-            sideTrain.draw(g, panelHeight, trains, time);
-        }
-
+        view.draw(g, panelHeight, trains, time);
         drawTabs(g);
     }
 
@@ -83,7 +62,7 @@ public class SidePanel {
         g.setColor(accentLine);
         g.fillRect(0, topHeight - 3, panelWidth, 3);
 
-        // Big box: clock on top, date underneath ("Time | Day").
+        // Big box: clock on top, date underneath.
         int boxX = 12;
         int boxY = 8;
         int boxW = 300;
@@ -114,24 +93,21 @@ public class SidePanel {
         return panelWidth - topButtonSize - pauseMargin;
     }
 
-    private int pauseY() {
-        return (topHeight - topButtonSize) / 2;
-    }
-
     private int homeX(int panelWidth) {
         return pauseX(panelWidth) - topButtonSize - homeGap;
     }
 
-    private int homeY() {
+    // Both buttons are vertically centred in the bar.
+    private int buttonY() {
         return (topHeight - topButtonSize) / 2;
     }
 
     public boolean isPauseClicked(int mouseX, int mouseY, int panelWidth) {
-        return inRect(mouseX, mouseY, pauseX(panelWidth), pauseY(), topButtonSize, topButtonSize);
+        return inRect(mouseX, mouseY, pauseX(panelWidth), buttonY(), topButtonSize, topButtonSize);
     }
 
     public boolean isHomeClicked(int mouseX, int mouseY, int panelWidth) {
-        return inRect(mouseX, mouseY, homeX(panelWidth), homeY(), topButtonSize, topButtonSize);
+        return inRect(mouseX, mouseY, homeX(panelWidth), buttonY(), topButtonSize, topButtonSize);
     }
 
     public boolean setButtonHover(int mouseX, int mouseY, int panelWidth) {
@@ -143,19 +119,26 @@ public class SidePanel {
         return changed;
     }
 
-    // Simple house icon: a roof triangle over a body, with a door cut-out.
-    private void drawHomeButton(Graphics g, int panelWidth) {
-        int x = homeX(panelWidth);
-        int y = homeY();
-
-        if (homeHover) {
-            g.setColor(buttonHoverFill);
-        } else {
-            g.setColor(buttonFill);
+    private Color pick(boolean on, Color yes, Color no) {
+        if (on) {
+            return yes;
         }
+        return no;
+    }
+
+    // The square every top-bar button starts from.
+    private void drawButtonBox(Graphics g, int x, int y, boolean hover) {
+        g.setColor(pick(hover, buttonHoverFill, buttonFill));
         g.fillRect(x, y, topButtonSize, topButtonSize);
         g.setColor(Color.black);
         g.drawRect(x, y, topButtonSize, topButtonSize);
+    }
+
+    // House icon: a roof triangle over a body, with a door cut-out.
+    private void drawHomeButton(Graphics g, int panelWidth) {
+        int x = homeX(panelWidth);
+        int y = buttonY();
+        drawButtonBox(g, x, y, homeHover);
 
         int[] roofX = {x + 6, x + topButtonSize / 2, x + topButtonSize - 6};
         int[] roofY = {y + 22, y + 8, y + 22};
@@ -163,26 +146,14 @@ public class SidePanel {
         g.fillPolygon(roofX, roofY, 3);
         g.fillRect(x + 11, y + 22, topButtonSize - 22, 14);
 
-        if (homeHover) {
-            g.setColor(buttonHoverFill);
-        } else {
-            g.setColor(buttonFill);
-        }
+        g.setColor(pick(homeHover, buttonHoverFill, buttonFill));
         g.fillRect(x + topButtonSize / 2 - 3, y + 27, 6, 9); // door
     }
 
     private void drawPauseButton(Graphics g, int panelWidth, boolean running) {
         int x = pauseX(panelWidth);
-        int y = pauseY();
-
-        if (pauseHover) {
-            g.setColor(buttonHoverFill);
-        } else {
-            g.setColor(buttonFill);
-        }
-        g.fillRect(x, y, topButtonSize, topButtonSize);
-        g.setColor(Color.black);
-        g.drawRect(x, y, topButtonSize, topButtonSize);
+        int y = buttonY();
+        drawButtonBox(g, x, y, pauseHover);
 
         int barW = topButtonSize / 6;
         if (running) {
@@ -197,19 +168,12 @@ public class SidePanel {
 
     // View-switch tabs
 
-    private int tabX() {
-        if (tableOpen) {
-            return tableWidth;
-        }
-        return leftWidth;
-    }
-
     private int trainTabY() {
         return topHeight + 16;
     }
 
     private int tableTabY() {
-        return topHeight + 16 + tabHeight + tabGap;
+        return trainTabY() + tabHeight + tabGap;
     }
 
     private int tabWidth(boolean hover) {
@@ -220,73 +184,57 @@ public class SidePanel {
     }
 
     private void drawTabs(Graphics g) {
-        int x = tabX();
-        drawTab(g, x, trainTabY(), "Train current", !tableOpen, trainTabHover);
-        drawTab(g, x, tableTabY(), "Train table", tableOpen, tableTabHover);
+        int x = view.rightEdge();
+        drawTab(g, x, trainTabY(), "Train current", view == sideTrain, trainTabHover);
+        drawTab(g, x, tableTabY(), "Train table", view == sideTable, tableTabHover);
     }
 
-    // Same label at both sizes - only the tab's fill colour (active/inactive)
-    // and its width (hovered/not) change; the label text and position stay put.
     private void drawTab(Graphics g, int x, int y, String label, boolean active, boolean hover) {
         int w = tabWidth(hover);
         int[] xs = {x, x + w, x + w + tabPoint, x + w, x};
         int[] ys = {y, y, y + tabHeight / 2, y + tabHeight, y + tabHeight};
 
-        if (active) {
-            g.setColor(tabActiveFill);
-        } else {
-            g.setColor(tabInactiveFill);
-        }
+        g.setColor(pick(active, tabActiveFill, tabInactiveFill));
         g.fillPolygon(xs, ys, 5);
         g.setColor(Color.black);
         g.drawPolygon(xs, ys, 5);
 
-        if (active) {
-            g.setColor(Color.black);
-        } else {
-            g.setColor(Color.white);
-        }
+        g.setColor(pick(active, Color.black, Color.white));
         g.setFont(new Font("SansSerif", Font.PLAIN, 13));
         g.drawString(label, x + 10, y + tabHeight / 2 + 5);
     }
 
-    // Generous hit area (as wide as the tab ever gets) so hovering near a
-    // short tab both grows it and is easy to click once it is grown.
+    // The hit area is as wide as a tab ever gets, so hovering near a short tab
+    // grows it and is easy to click once grown.
     private boolean inTab(int mouseX, int mouseY, int tabY) {
-        return inRect(mouseX, mouseY, tabX(), tabY, tabFullWidth + tabPoint, tabHeight);
+        return inRect(mouseX, mouseY, view.rightEdge(), tabY, tabFullWidth + tabPoint, tabHeight);
     }
 
     private boolean isOverAnyTab(int mouseX, int mouseY) {
         return inTab(mouseX, mouseY, trainTabY()) || inTab(mouseX, mouseY, tableTabY());
     }
 
-    // "Train curr" always opens the train list; "Train time table" always
-    // opens the timetable - each tab always switches to its own view.
-    
-
+    // Each tab always switches to its own view.
     public boolean handleTabClick(int mouseX, int mouseY, int panelWidth) {
         if (inTab(mouseX, mouseY, trainTabY())) {
-            tableOpen = false;
-        } else if (inTab(mouseX, mouseY, tableTabY())) {
-            tableOpen = true;
-        } else {
-            return false;
+            view = sideTrain;
+            return true;
         }
-        return true;
+        if (inTab(mouseX, mouseY, tableTabY())) {
+            view = sideTable;
+            return true;
+        }
+        return false;
     }
 
-
-    // Pointer / scroll forwarding
+    // Pointer and scroll calls go straight to the current view.
 
     public boolean setPointer(int x, int y) {
-        boolean changed = sideTrain.setPointer(x, y);
+        boolean changed = view.setPointer(x, y);
 
         boolean trainHover = inTab(x, y, trainTabY());
         boolean tableHover = inTab(x, y, tableTabY());
-        if (trainHover != trainTabHover) {
-            changed = true;
-        }
-        if (tableHover != tableTabHover) {
+        if (trainHover != trainTabHover || tableHover != tableTabHover) {
             changed = true;
         }
         trainTabHover = trainHover;
@@ -295,29 +243,20 @@ public class SidePanel {
     }
 
     public boolean isOverScrollbar(int x, int y) {
-        if (tableOpen) {
-            return false;
-        }
-        return sideTrain.isOverScrollbar(x, y);
+        return view.isOverScrollbar(x, y);
     }
 
     public void dragScrollTo(int y) {
-        if (!tableOpen) {
-            sideTrain.dragScrollTo(y);
-        }
+        view.dragScrollTo(y);
     }
 
     public void scrollBy(int amount) {
-        if (!tableOpen) {
-            sideTrain.scrollBy(amount);
-        }
+        view.scrollBy(amount);
     }
 
     public void setThumbDragging(boolean dragging) {
-        sideTrain.setThumbDragging(dragging);
+        view.setThumbDragging(dragging);
     }
-
-    // Helper
 
     private boolean inRect(int px, int py, int x, int y, int w, int h) {
         return px >= x && px <= x + w && py >= y && py <= y + h;

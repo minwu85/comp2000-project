@@ -9,6 +9,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Arrays;
+import java.util.Set;
 
 // The instructions screen: explains the goal of the simulation and the
 // controls in the panel, with Back (to Home) and Next (into the simulation).
@@ -29,6 +31,9 @@ public class Instruction extends Frame {
     Color buttonFill = new Color(120, 120, 120);
 
     Image backgroundImage;
+
+    private static final Set<String> HEADINGS =
+            Set.of("GOAL", "CONTROLS IN THE SIMULATION", "BUTTONS ON THIS SCREEN");
 
     String[] lines = {
         "GOAL",
@@ -148,36 +153,23 @@ public class Instruction extends Frame {
         }
     }
 
+    // Widest line in its own font (headings are bold), plus side padding.
     private int measureCardWidth(Graphics g) {
         FontMetrics plainFm = g.getFontMetrics(new Font("SansSerif", Font.PLAIN, 15));
         FontMetrics boldFm = g.getFontMetrics(new Font("SansSerif", Font.BOLD, 18));
-        int maxWidth = 0;
-        for (String line : lines) {
-            FontMetrics fm;
-            if (isHeading(line)) {
-                fm = boldFm;
-            } else {
-                fm = plainFm;
-            }
-            int lineWidth = fm.stringWidth(line);
-            if (lineWidth > maxWidth) {
-                maxWidth = lineWidth;
-            }
-        }
-        return maxWidth + 60;
+        return Arrays.stream(lines)
+                .mapToInt(line -> {
+                    if (isHeading(line)) {
+                        return boldFm.stringWidth(line);
+                    }
+                    return plainFm.stringWidth(line);
+                })
+                .max()
+                .orElse(0) + 60;
     }
 
     private boolean isHeading(String line) {
-        if (line.equals("GOAL")) {
-            return true;
-        }
-        if (line.equals("CONTROLS IN THE SIMULATION")) {
-            return true;
-        }
-        if (line.equals("BUTTONS ON THIS SCREEN")) {
-            return true;
-        }
-        return false;
+        return HEADINGS.contains(line);
     }
 
     private void drawButton(Graphics g, int x, String label) {

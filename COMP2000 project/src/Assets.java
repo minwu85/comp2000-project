@@ -1,13 +1,13 @@
 import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import javax.imageio.ImageIO;
 
-// Loads a background picture from the asserts folder. Different ways of
-// running the app (a terminal in the project folder, a terminal in bin, an
-// IDE's run button) start with different working directories, so this tries
-// each likely one in turn. A missing or unreadable picture just means no
-// background instead of a crash.
+// Loads a background picture from the asserts folder. A terminal, an IDE run
+// button and a different folder all start with a different working directory,
+// so each likely folder is tried in turn. A missing or unreadable picture just
+// means no background instead of a crash.
 public class Assets {
 
     private static final String[] SEARCH_FOLDERS = {
@@ -19,17 +19,21 @@ public class Assets {
     };
 
     public static Image load(String fileName) {
-        for (String folder : SEARCH_FOLDERS) {
-            File file = new File(folder + fileName);
-            if (file.exists()) {
-                try {
-                    return ImageIO.read(file);
-                } catch (IOException ex) {
-                    System.out.println("Could not read " + file.getPath() + ": " + ex.getMessage());
-                }
-            }
+        File file = Arrays.stream(SEARCH_FOLDERS)
+                .map(folder -> new File(folder + fileName))
+                .filter(File::exists)
+                .findFirst()
+                .orElse(null);
+
+        if (file == null) {
+            System.out.println("Could not find " + fileName + " in any asserts folder.");
+            return null;
         }
-        System.out.println("Could not find " + fileName + " in any asserts folder.");
-        return null;
+        try {
+            return ImageIO.read(file);
+        } catch (IOException ex) {
+            System.out.println("Could not read " + file.getPath() + ": " + ex.getMessage());
+            return null;
+        }
     }
 }

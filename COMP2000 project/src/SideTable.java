@@ -1,17 +1,16 @@
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.util.Arrays;
 
-// The wide panel that opens on top of the map to show a simple timetable:
-// one row per train with its line, current stop, next stop and rough ETAs,
-// plus a footer naming the busiest train. Times come from the Time class.
-public class SideTable {
+// The "Train table" view: a wide panel that opens over the map with one row per
+// train (line, current stop, next stop, rough ETA) and a footer naming the
+// busiest train. Times come from the Time class.
+public class SideTable implements SideView {
 
-    private final int leftX;   // x where the table content starts (right of the SideTrain stub)
+    private final int leftX;   // x where the table starts
     private final int top;     // y where the panel starts (below the top bar)
     private final int rightX;  // x of the panel's right edge
-
-    private static final int MINUTES_BETWEEN_STOPS = 3;
 
     Color body = new Color(220, 220, 220);
     Color headerRow = new Color(190, 190, 190);
@@ -38,6 +37,12 @@ public class SideTable {
         this.colEta = leftX + 820;
     }
 
+    @Override
+    public int rightEdge() {
+        return rightX;
+    }
+
+    @Override
     public void draw(Graphics g, int panelHeight, Vehicles[] trains, Time time) {
         int w = rightX - leftX;
         int h = panelHeight - top;
@@ -82,54 +87,38 @@ public class SideTable {
 
     private void drawRow(Graphics g, int y, Vehicles train, Time time) {
         // Line-colour swatch next to the train name.
-        g.setColor(SideTrain.lineColour(train.getName()));
+        g.setColor(SideView.lineColour(train.getName()));
         g.fillRect(colTrain - 16, y - 11, 11, 11);
         g.setColor(Color.black);
         g.drawRect(colTrain - 16, y - 11, 11, 11);
-
-        Stops next = train.getNextStop();
-        String nextName;
-        if (next == null) {
-            nextName = "-";
-        } else {
-            nextName = next.getName();
-        }
-
-        // Bundle each label + value with a generic Pair before drawing it.
-        Pair<String, String> current = new Pair<>("Current", train.getCurStop().getName());
-        Pair<String, String> upcoming = new Pair<>("Next", nextName);
 
         g.setFont(new Font("SansSerif", Font.BOLD, 13));
         g.drawString(train.getName(), colTrain, y);
 
         g.setFont(new Font("SansSerif", Font.PLAIN, 13));
         g.drawString(train.route.name, colLine, y);
-        g.drawString(current.getSecond(), colCurrent, y);
+        g.drawString(train.getCurStop().getName(), colCurrent, y);
         g.drawString(time.clockAt(0), colTime, y);
-        g.drawString(upcoming.getSecond(), colNext, y);
+        g.drawString(SideView.nextStopName(train), colNext, y);
         g.drawString(time.clockAt(MINUTES_BETWEEN_STOPS), colEta, y);
     }
 
-    // Finds the train with the most people aboard using a bounded generic
-    // method (GenericUtil.max needs a type that implements Comparable<T>;
-    // the int counts are autoboxed to Integer to satisfy that).
+    // Two small stream pipelines: fold the passenger counts with the bounded
+    // generic GenericUtil.max (the int counts autobox to Integer), then find
+    // the first train with that count. An empty array just draws nothing.
     private void drawBusiestFooter(Graphics g, int x, int y, Vehicles[] trains) {
-        if (trains.length == 0) {
-            return;
-        }
-        Vehicles busiest = trains[0];
-        for (Vehicles train : trains) {
-            int busiestCount = busiest.getPassengers().size();
-            int trainCount = train.getPassengers().size();
-            Integer larger = GenericUtil.max(busiestCount, trainCount);
-            if (larger.equals(trainCount)) {
-                busiest = train;
-            }
-        }
+        int most = Arrays.stream(trains)
+                .map(train -> train.getPassengers().size())
+                .reduce(0, GenericUtil::max);
 
-        g.setColor(new Color(60, 60, 60));
-        g.setFont(new Font("SansSerif", Font.ITALIC, 12));
-        g.drawString("Busiest right now: " + busiest.getName()
-                + " (" + busiest.getPassengers().size() + " aboard)", x, y + 14);
+        Arrays.stream(trains)
+                .filter(train -> train.getPassengers().size() == most)
+                .findFirst()
+                .ifPresent(busiest -> {
+                    g.setColor(new Color(60, 60, 60));
+                    g.setFont(new Font("SansSerif", Font.ITALIC, 12));
+                    g.drawString("Busiest right now: " + busiest.getName()
+                            + " (" + most + " aboard)", x, y + 14);
+                });
     }
 }
