@@ -2,8 +2,12 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.util.Arrays;
+
 import java.util.Map;
 import java.util.TreeMap;
+
+import java.util.Comparator;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 // The "Train table" view: a wide panel that opens over the map with one row per
@@ -115,15 +119,26 @@ public class SideTable implements SideView {
                 .map(train -> train.getPassengers().size())
                 .reduce(0, GenericUtil::max);
 
+        // Arrays.stream(trains)
+        //         .filter(train -> train.getPassengers().size() == most)
+        //         .findFirst()
+        //         .ifPresent(busiest -> {
+        //             g.setColor(new Color(60, 60, 60));
+        //             g.setFont(new Font("SansSerif", Font.ITALIC, 12));
+        //             g.drawString("Busiest right now: " + busiest.getName()
+        //                     + " (" + most + " aboard)", x, y + 14);
+        //         });
         Arrays.stream(trains)
-                .filter(train -> train.getPassengers().size() == most)
-                .findFirst()
+                .filter(Objects::nonNull)
+                .filter(t -> t.getPassengers() != null)
+                .collect(Collectors.maxBy(Comparator.comparingInt(t -> t.getPassengers().size())))
                 .ifPresent(busiest -> {
-                    g.setColor(new Color(60, 60, 60));
-                    g.setFont(new Font("SansSerif", Font.ITALIC, 12));
-                    g.drawString("Busiest right now: " + busiest.getName()
-                            + " (" + most + " aboard)", x, y + 14);
-                });
+                int count = busiest.getPassengers().size();
+                g.setColor(new Color(60, 60, 60));
+                g.setFont(new Font("SansSerif", Font.ITALIC, 12));
+                g.drawString("Busiest right now: " + busiest.getName() 
+                        + " (" + count + " aboard)", x, y + 14);
+            });
     }
 
     private static String status(Vehicles train) {
