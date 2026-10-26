@@ -35,6 +35,9 @@ public class Home extends Frame {
         // has the picture ready instead of racing it and drawing blank.
         backgroundImage = Assets.load("home.png");
         setVisible(true);
+        // The pictures the next screens need are read in the background while
+        // this screen is showing, so START and INSTRUCTION open without a wait.
+        Assets.preload("1.png", "2.png", "ins.png");
 
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
